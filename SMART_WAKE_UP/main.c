@@ -54,12 +54,16 @@ int main(void)
 		GPIO_DigitalWrite(GPIOB, 14, LOW);
 		
 		TIM_Wait(1000);*/
-    for (int i =0; i<50; i++)
-		{
-			ST7920_Clear_GLCD_Buffer();
-			ST7920_Font_Print(i, 20, Arial28x28, "Paul !");
-			ST7920_Send_GLCD_Buffer();
-			TIM_Wait(10);
-		}
+    ST7920_Clear_GLCD_Buffer();
+		//DrawFilledRectangle(0, 0, 128, 64);
+		ST7920_Font_Print(0, 20, Arial28x28, "1gramme");
+		ST7920_Send_GLCD_Buffer();
+		//ST7920_SendString(0, 0, "test");
+		//TIM_Wait(1000);
+		//ST7920_Clear_GLCD_Buffer();
+		//ST7920_Font_Print(0, 20, Arial28x28, "2");
+		//ST7920_Send_GLCD_Buffer();
+		//ST7920_Clear();
+		TIM_Wait(1000);
 	}
 }

@@ -16,17 +16,20 @@
 #include "st7920.h"
 #include "tim.h"
 
-#define SCK_LOW 	(GPIOA->BSRR=GPIO_BSRR_BR0)
-#define SCK_HIGH 	(GPIOA->BSRR=GPIO_BSRR_BS0)
+uint8_t lcd_data[3];
 
-#define CS_LOW 		(GPIOA->BSRR=GPIO_BSRR_BR1)
-#define CS_HIGH 	(GPIOA->BSRR=GPIO_BSRR_BS1)
+#define CS_LOW 		(GPIOA->BSRR=GPIO_BSRR_BR0)
+#define CS_HIGH 	(GPIOA->BSRR=GPIO_BSRR_BS0)
 
-#define SID_LOW 	(GPIOA->BSRR=GPIO_BSRR_BR4)
-#define SID_HIGH 	(GPIOA->BSRR=GPIO_BSRR_BS4)
+#define RST_LOW 	(GPIOA->BSRR=GPIO_BSRR_BR1)
+#define RST_HIGH 	(GPIOA->BSRR=GPIO_BSRR_BS1)
 
-#define RST_LOW 	(GPIOA->BSRR=GPIO_BSRR_BR8)
-#define RST_HIGH 	(GPIOA->BSRR=GPIO_BSRR_BS8)
+#define SCK_LOW 	(GPIOA->BSRR=GPIO_BSRR_BR5)
+#define SCK_HIGH 	(GPIOA->BSRR=GPIO_BSRR_BS5)
+
+#define SID_LOW 	(GPIOA->BSRR=GPIO_BSRR_BR7)
+#define SID_HIGH 	(GPIOA->BSRR=GPIO_BSRR_BS7)
+
 
 static uint8_t numRows = 64;
 static uint8_t numCols = 128;
@@ -53,76 +56,104 @@ static uint8_t GLCD_Buffer[(128*64)/8];
 #define LCD_LINE2       0x88
 #define LCD_LINE3       0x98
 
-static void st7920_spi_pins_init(void)
+static void ST7920_spi_init(void)
 {
-	RCC->AHB1ENR|=RCC_AHB1ENR_GPIOAEN; //enable clock for GPIOA
-	GPIOA->MODER|=GPIO_MODER_MODER0_0;
-	GPIOA->MODER&=~GPIO_MODER_MODER0_1;
+  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; //enable clock for GPIOA
+	
+	//Initialisation de la pin PA1-CS
+	GPIOA->MODER |= GPIO_MODER_MODER1_0;
+	GPIOA->MODER &= ~GPIO_MODER_MODER1_1;
 
-	GPIOA->MODER|=GPIO_MODER_MODER1_0;
-	GPIOA->MODER&=~GPIO_MODER_MODER1_1;
+	//Initialisation de la pin PA0-RST
+	GPIOA->MODER |= GPIO_MODER_MODER0_0;
+	GPIOA->MODER &= ~GPIO_MODER_MODER0_1;
 
-	GPIOA->MODER|=GPIO_MODER_MODER4_0;
-	GPIOA->MODER&=~GPIO_MODER_MODER4_1;
+	//Initialisation de la pin PA5-SCK
+	GPIOA->MODER |= GPIO_MODER_MODER5_1;
+	GPIOA->MODER &= ~GPIO_MODER_MODER5_0;
 
-	GPIOA->MODER |=(GPIO_MODER_MODER5_1|GPIO_MODER_MODER6_1|GPIO_MODER_MODER7_1);
-	GPIOA->MODER &=~(GPIO_MODER_MODER5_0|GPIO_MODER_MODER6_0|GPIO_MODER_MODER7_0);
+	//Initialisation de la pin PA7-MOSI
+	GPIOA->MODER |= GPIO_MODER_MODER7_1;
+	GPIOA->MODER &= ~GPIO_MODER_MODER7_0;
+	
+	#define SPI1_AF 0x05
+
+	GPIOA->AFR[0]|=(SPI1_AF<<GPIO_AFRL_AFRL5_Pos)|(SPI1_AF<<GPIO_AFRL_AFRL7_Pos);
+	
+	/*Enable clock access to SPI1 module*/
+	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+	
+	/*Set MSB first*/
+	SPI1->CR1 &=~ SPI_CR1_LSBFIRST;
+	
+	/*Set mode to MASTER*/
+	SPI1->CR1 |= SPI_CR1_MSTR;
+	
+	/*Select software slave management by
+	 * setting SSM=1 and SSI=1*/
+	SPI1->CR1 |= SPI_CR1_SSM;
+	SPI1->CR1 |= SPI_CR1_SSI;
+	
+	/*Set SPI mode to be MODE1 (CPHA1 CPOL0)*/
+	SPI1->CR1|=SPI_CR1_CPHA;
+	
+	/*Enable SPI module*/
+	SPI1->CR1 |= SPI_CR1_SPE;
 }
 
-static void st7920_spi_config(void)
+static void st7920_spi_transmit(uint8_t *data,uint32_t size)
 {
-	RCC->AHB1ENR|=RCC_AHB1ENR_GPIOAEN;
-	GPIOA->MODER|=(GPIO_MODER_MODER0_0|GPIO_MODER_MODER1_0|GPIO_MODER_MODER4_0|GPIO_MODER_MODER8_0);
-	GPIOA->MODER&=~(GPIO_MODER_MODER0_1|GPIO_MODER_MODER1_1|GPIO_MODER_MODER4_1|GPIO_MODER_MODER8_1);
-	GPIOA->OSPEEDR|=GPIO_OSPEEDER_OSPEEDR0|GPIO_OSPEEDER_OSPEEDR1|GPIO_OSPEEDER_OSPEEDR4|GPIO_OSPEEDER_OSPEEDR8;
+	uint32_t i=0;
+
+	while(i<size)
+	{
+		/*Wait until TXE is set*/
+		while(!(SPI1->SR & (SPI_SR_TXE))){}
+
+		/*Write the data to the data register*/
+		*(volatile uint8_t*)SPI1->DR = data[i];
+		i++;
+	}
+	/*Wait until TXE is set*/
+	while(!(SPI1->SR & (SPI_SR_TXE))){}
+
+	/*Wait for BUSY flag to reset*/
+	while((SPI1->SR & (SPI_SR_BSY))){}
+
+	/*Clear OVR flag*/
+	(void)SPI1->DR;
+	(void)SPI1->SR;
 }
 
-static void SendByteSPI(uint8_t byte)
-{
-    for(int i = 0; i < 8; i++)
-    {
-        if((byte << i) & 0x80)
-        {
-            // Mettre le signal SID (ou MOSI) � 1
-            SID_HIGH;
-        }
-        else
-        {
-            // Mettre le signal SID (ou MOSI) � 0
-            SID_LOW;
-        }
-
-        // Baisser le signal SCLK (ou SCK)
-        SCK_HIGH;
-        TIM_WaitMicros(1); // Attendre un court laps de temps
-
-        // �lever le signal SCLK (ou SCK)
-        SCK_LOW;
-        // Attendre un court laps de temps pour assurer la bonne transmission
-        TIM_WaitMicros(1);
-    }
-}
-
-static void ST7920_SendCmd (uint8_t cmd)
+static void ST7920_SendCmd(uint8_t cmd)
 {
 	CS_HIGH;  // PUll the CS high
 
-	SendByteSPI(0xf8+(0<<1));  // send the SYNC + RS(0)
-	SendByteSPI(cmd&0xf0);  // send the higher nibble first
-	SendByteSPI((cmd<<4)&0xf0);  // send the lower nibble
+	lcd_data[0]=0xF8;
+	lcd_data[1]=(cmd&0xf0);
+	lcd_data[2]=((cmd<<4)&0xf0);
+
+	st7920_spi_transmit(lcd_data,3);
+
 	TIM_WaitMicros(30);
 
 	CS_LOW;  // PUll the CS LOW
+
 }
 
 static void ST7920_SendData (uint8_t data)
 {
+
 	CS_HIGH;
 
-	SendByteSPI(0xf8+(1<<1));  // send the SYNC + RS(1)
-	SendByteSPI(data&0xf0);  // send the higher nibble first
-	SendByteSPI((data<<4)&0xf0);  // send the lower nibble
+	lcd_data[0]=0xFA;
+	lcd_data[1]=(data&0xf0);
+	lcd_data[2]=((data<<4)&0xf0);
+
+	st7920_spi_transmit(lcd_data,3);
+
 	TIM_WaitMicros(30);
+
 	CS_LOW;  // PUll the CS LOW
 }
 
@@ -155,51 +186,42 @@ void ST7920_SendString(int row, int col, char* string)
     	}
 }
 
-void ST7920_Font_Print(int16_t x, int16_t y, uint8_t *font_buffer, const char *str)
+void ST7920_Font_Print(int16_t x, int16_t y, uint8_t *font_buffer, const char *str) 
 {
-	unsigned int bit, test;
-	unsigned int offset = font_buffer[0];
-	unsigned int hor = font_buffer[1];
-	unsigned int vert = font_buffer[2];                      // get vert size of font
-	unsigned int bpl = font_buffer[3];
-	int Size_Font;
-	int Place_Size_Font;
-	uint8_t *sign, z;
-
-	while (*str && x < 128 && y < 64)
-	{
-		if ((*str < 31) || (*str > 127)) return; //Verfying if ce char range is in interval [31;127]
-		sign = &font_buffer[((*str - 32) * offset) + 4]; // start of char bitmap
-		
-		for (unsigned int j = 0; j < vert; j++) //  vertical line
-		{
-	    	for (unsigned int i = 0; i < hor; i++) //  horizontal line
-	    	{
-	    		test = bpl * i + ((j & 0xF8) >> 3) + 1;
-	    		z =  sign[test];
-	    		bit = 1 << (j & 0x07);
-	    		if (( z & bit ) == 0x00) ResetPixel(x+i, y+j);
-	    		else SetPixel(x+i, y+j);
-	    	}
-		}
-
-		// Move the x coordinate to the right by the width of the character
-		Place_Size_Font = 4+((*str)-32)*offset;
-		Size_Font = font_buffer[Place_Size_Font];
-		x += Size_Font+(hor/10); // Increment x by the character width
-		str++; // Move to the next character in the string
-	}    
+    // Récupération des données de la police depuis font_buffer
+    uint8_t dataSize = font_buffer[0];
+    uint8_t longueur = font_buffer[1];
+    uint8_t hauteur = font_buffer[2];
+    uint8_t nbOctetsColonne = font_buffer[3];
+    
+    while (*str && x < 128 && y < 64) 
+    {
+        if ((*str < 31) || (*str > 127)) return; // Vérifie si le code ASCII du caractère est valide
+        
+        uint8_t numLettre = *str - 32; // Numéro du caractère dans font_buffer
+        uint8_t sizeLettre = font_buffer[4 + numLettre * dataSize]; // Taille du caractère
+        
+        for (int NUM = 0; NUM < sizeLettre; NUM++) 
+        {
+            for (int numdata = 0; numdata < nbOctetsColonne; numdata++) 
+            {
+                uint8_t Data = font_buffer[5 + numLettre * dataSize + numdata + nbOctetsColonne * NUM];
+                for (int bit = 0; bit < 8; bit++) 
+                {
+                    uint8_t pixel = (Data >> bit) & 1;
+                    int16_t a = x + NUM;
+                    int16_t b = y + (bit + 8 * numdata);
+                    // Assurez-vous que les pixels sont à l'intérieur des limites de l'écran
+                    if (pixel == 1 && a < 128 && b < 64 && a >= 0 && b >= 0) SetPixel(a, b);
+                    else if (a < 128 && b < 64 && a >= 0 && b >= 0) ResetPixel(a, b);
+                }
+            }
+        }
+        // Increment x par la largeur du caractère plus un espace (longueur / 10)
+        x += sizeLettre + (longueur / 10);
+        str++; // Passer au caractère suivant dans la chaîne
+    }
 }
-
-
-
-/*void ST7920_Font_PrintValue(uint8_t x, uint8_t y, int val)
-{
-	char chain[20];
-	snprintf(chain, sizeof(chain), "%d", val);
-	ST7920_Font_Print(x, y, chain);
-}*/
-
 // switch to graphic mode or normal mode::: enable = 1 -> graphic mode enable = 0 -> normal mode
 
 void ST7920_GraphicMode (int enable)   // 1-enable, 0-disable
@@ -207,18 +229,18 @@ void ST7920_GraphicMode (int enable)   // 1-enable, 0-disable
 	if (enable == 1)
 	{
 		ST7920_SendCmd(0x30);  // 8 bit mode
-		TIM_Wait (1);
+		TIM_Wait(1);
 		ST7920_SendCmd(0x34);  // switch to Extended instructions
-		TIM_Wait (1);
+		TIM_Wait(1);
 		ST7920_SendCmd(0x36);  // enable graphics
-		TIM_Wait (1);
+		TIM_Wait(1);
 		Graphic_Check = 1;  // update the variable
 	}
 
 	else if (enable == 0)
 	{
 		ST7920_SendCmd(0x30);  // 8 bit mode
-		TIM_Wait (1);
+		TIM_Wait(1);
 		Graphic_Check = 0;  // update the variable
 	}
 }
@@ -291,7 +313,7 @@ void ST7920_Clear(void)
 	else
 	{
 		ST7920_SendCmd(0x01);   // clear the display using command
-		TIM_Wait(20); // TIM_Wait >1.6 ms
+		TIM_Wait(20); // TIM_Wait>1.6 ms
 	}
 }
 
@@ -559,8 +581,7 @@ void DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint
 void ST7920_init(void)
 {
 	TIM_Wait(100);
-	st7920_spi_pins_init();
-	st7920_spi_config();
+	ST7920_spi_init();
 
 	RST_LOW;
 	TIM_Wait(50);

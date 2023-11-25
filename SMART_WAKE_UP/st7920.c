@@ -16,8 +16,6 @@
 #include "st7920.h"
 #include "tim.h"
 
-uint8_t lcd_data[3];
-
 #define CS_LOW 		(GPIOA->BSRR=GPIO_BSRR_BR0)
 #define CS_HIGH 	(GPIOA->BSRR=GPIO_BSRR_BS0)
 
@@ -69,73 +67,41 @@ static void ST7920_spi_init(void)
 	GPIOA->MODER &= ~GPIO_MODER_MODER0_1;
 
 	//Initialisation de la pin PA5-SCK
-	GPIOA->MODER |= GPIO_MODER_MODER5_1;
-	GPIOA->MODER &= ~GPIO_MODER_MODER5_0;
+	GPIOA->MODER |= GPIO_MODER_MODER5_0;
+	GPIOA->MODER &= ~GPIO_MODER_MODER5_1;
 
 	//Initialisation de la pin PA7-MOSI
-	GPIOA->MODER |= GPIO_MODER_MODER7_1;
-	GPIOA->MODER &= ~GPIO_MODER_MODER7_0;
-	
-	#define SPI1_AF 0x05
-
-	GPIOA->AFR[0]|=(SPI1_AF<<GPIO_AFRL_AFRL5_Pos)|(SPI1_AF<<GPIO_AFRL_AFRL7_Pos);
-	
-	/*Enable clock access to SPI1 module*/
-	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
-	
-	/*Set MSB first*/
-	SPI1->CR1 &=~ SPI_CR1_LSBFIRST;
-	
-	/*Set mode to MASTER*/
-	SPI1->CR1 |= SPI_CR1_MSTR;
-	
-	/*Select software slave management by
-	 * setting SSM=1 and SSI=1*/
-	SPI1->CR1 |= SPI_CR1_SSM;
-	SPI1->CR1 |= SPI_CR1_SSI;
-	
-	/*Set SPI mode to be MODE1 (CPHA1 CPOL0)*/
-	SPI1->CR1|=SPI_CR1_CPHA;
-	
-	/*Enable SPI module*/
-	SPI1->CR1 |= SPI_CR1_SPE;
+	GPIOA->MODER |= GPIO_MODER_MODER7_0;
+	GPIOA->MODER &= ~GPIO_MODER_MODER7_1;
 }
 
-static void st7920_spi_transmit(uint8_t *data,uint32_t size)
-{
-	uint32_t i=0;
 
-	while(i<size)
+static void SendByteSPI(uint8_t byte)
+{
+	for(int i=0;i<8;i++)
 	{
-		/*Wait until TXE is set*/
-		while(!(SPI1->SR & (SPI_SR_TXE))){}
+		if((byte<<i)&0x80)
+		{
+			SID_HIGH;  // SID=1  OR MOSI
+		}
 
-		/*Write the data to the data register*/
-		*(volatile uint8_t*)SPI1->DR = data[i];
-		i++;
+		else {SID_LOW;}  // SID=0
+		SCK_HIGH;  // SCLK =0  OR SCK
+		TIM_WaitMicros(1);
+		SCK_LOW;  // SCLK=1
+		TIM_WaitMicros(1);
 	}
-	/*Wait until TXE is set*/
-	while(!(SPI1->SR & (SPI_SR_TXE))){}
-
-	/*Wait for BUSY flag to reset*/
-	while((SPI1->SR & (SPI_SR_BSY))){}
-
-	/*Clear OVR flag*/
-	(void)SPI1->DR;
-	(void)SPI1->SR;
 }
 
-static void ST7920_SendCmd(uint8_t cmd)
+static void ST7920_SendCmd (uint8_t cmd)
 {
+
 	CS_HIGH;  // PUll the CS high
 
-	lcd_data[0]=0xF8;
-	lcd_data[1]=(cmd&0xf0);
-	lcd_data[2]=((cmd<<4)&0xf0);
-
-	st7920_spi_transmit(lcd_data,3);
-
-	TIM_WaitMicros(30);
+	SendByteSPI(0xf8+(0<<1));  // send the SYNC + RS(0)
+	SendByteSPI(cmd&0xf0);  // send the higher nibble first
+	SendByteSPI((cmd<<4)&0xf0);  // send the lower nibble
+	TIM_WaitMicros(20);
 
 	CS_LOW;  // PUll the CS LOW
 
@@ -146,14 +112,11 @@ static void ST7920_SendData (uint8_t data)
 
 	CS_HIGH;
 
-	lcd_data[0]=0xFA;
-	lcd_data[1]=(data&0xf0);
-	lcd_data[2]=((data<<4)&0xf0);
-
-	st7920_spi_transmit(lcd_data,3);
-
-	TIM_WaitMicros(30);
-
+	SendByteSPI(0xf8+(1<<1));  // send the SYNC + RS(1)
+	SendByteSPI(data&0xf0);  // send the higher nibble first
+	SendByteSPI((data<<4)&0xf0);  // send the lower nibble
+	TIM_WaitMicros(20);
+	
 	CS_LOW;  // PUll the CS LOW
 }
 

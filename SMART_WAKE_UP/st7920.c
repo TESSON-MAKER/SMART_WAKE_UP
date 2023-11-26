@@ -81,9 +81,9 @@ static void SendByteSPI(uint8_t byte)
 	for(int i=0;i<8;i++)
 	{
 		if((byte<<i)&0x80)
-		{
-			SID_HIGH;  // SID=1  OR MOSI
-		}
+			{
+				SID_HIGH;  // SID=1  OR MOSI
+			}
 
 		else {SID_LOW;}  // SID=0
 		SCK_HIGH;  // SCLK =0  OR SCK
@@ -149,42 +149,45 @@ void ST7920_SendString(int row, int col, char* string)
     	}
 }
 
+const uint8_t MIN_ASCII_VALUE = 31;
+const uint8_t MAX_ASCII_VALUE = 127;
+const uint8_t ASCII_OFFSET = 32;
+
 void ST7920_Font_Print(int16_t x, int16_t y, uint8_t *font_buffer, const char *str) 
 {
-    // Récupération des données de la police depuis font_buffer
-    uint8_t dataSize = font_buffer[0];
-    uint8_t longueur = font_buffer[1];
-    uint8_t hauteur = font_buffer[2];
-    uint8_t nbOctetsColonne = font_buffer[3];
-    
-    while (*str && x < 128 && y < 64) 
-    {
-        if ((*str < 31) || (*str > 127)) return; // Vérifie si le code ASCII du caractère est valide
-        
-        uint8_t numLettre = *str - 32; // Numéro du caractère dans font_buffer
-        uint8_t sizeLettre = font_buffer[4 + numLettre * dataSize]; // Taille du caractère
-        
-        for (int NUM = 0; NUM < sizeLettre; NUM++) 
-        {
-            for (int numdata = 0; numdata < nbOctetsColonne; numdata++) 
-            {
-                uint8_t Data = font_buffer[5 + numLettre * dataSize + numdata + nbOctetsColonne * NUM];
-                for (int bit = 0; bit < 8; bit++) 
-                {
-                    uint8_t pixel = (Data >> bit) & 1;
-                    int16_t a = x + NUM;
-                    int16_t b = y + (bit + 8 * numdata);
-                    // Assurez-vous que les pixels sont à l'intérieur des limites de l'écran
-                    if (pixel == 1 && a < 128 && b < 64 && a >= 0 && b >= 0) SetPixel(a, b);
-                    else if (a < 128 && b < 64 && a >= 0 && b >= 0) ResetPixel(a, b);
-                }
-            }
-        }
-        // Increment x par la largeur du caractère plus un espace (longueur / 10)
-        x += sizeLettre + (longueur / 10);
-        str++; // Passer au caractère suivant dans la chaîne
-    }
+	// Retrieving font data from font_buffer
+	uint8_t dataSize = font_buffer[0];
+	uint8_t length = font_buffer[1];
+	uint8_t height = font_buffer[2];
+	uint8_t bytesPerColumns = font_buffer[3];
+		
+	while (*str && x < numCols && y < numRows) 
+	{
+		uint8_t currentChar = *str;
+		if (currentChar < MIN_ASCII_VALUE || currentChar > MAX_ASCII_VALUE) return; // Check if ASCII value is valid
+
+		uint8_t letterNumber = currentChar - ASCII_OFFSET; // Character number in font_buffer
+		uint8_t letterSize = font_buffer[4 + letterNumber * dataSize]; // Character size
+				
+		for (int column = 0; column < letterSize; column++) 
+		{
+			for (int byteColumn = 0; byteColumn < bytesPerColumns; byteColumn++) 
+			{
+				uint8_t data = font_buffer[5 + letterNumber * dataSize + byteColumn + bytesPerColumns * column];
+				for (int bit = 0; bit < 8; bit++) 
+				{
+					uint8_t pixel = (data >> bit) & 1;
+					int16_t a = x + column;
+					int16_t b = y + (bit + 8 * byteColumn);
+					SetPixel(pixel, a, b);
+				}
+			}
+		}
+		x += letterSize + (length / 10); // Increment x by character width plus space
+		str++; // Move to the next character in the string
+	}
 }
+
 // switch to graphic mode or normal mode::: enable = 1 -> graphic mode enable = 0 -> normal mode
 
 void ST7920_GraphicMode (int enable)   // 1-enable, 0-disable
@@ -280,17 +283,15 @@ void ST7920_Clear(void)
 	}
 }
 
-void SetPixel(int16_t x, int16_t y)
+void SetPixel(uint8_t pixel, int16_t x, int16_t y) 
 {
-	if (y < numRows && x < numCols && y >= 0 && x >= 0)
-		GLCD_Buffer[y * (numCols/8) + (x/8)] |= 0x80u >> (x%8);
+    if (x < numCols && y < numRows && x >= 0 && y >= 0) 
+		{
+        if (pixel == 1) GLCD_Buffer[y * (numCols/8) + (x/8)] |= 0x80u >> (x%8);
+        else GLCD_Buffer[y * (numCols/8) + (x/8)] &= ~(0x80u >> (x%8));
+    }
 }
 
-void ResetPixel(int16_t x, int16_t y)
-{
-	if (y < numRows && x < numCols && y >= 0 && x >= 0)
-		GLCD_Buffer[y * (numCols/8) + (x/8)] &= ~(0x80u >> (x%8));
-}
 
 /* draw a line
  * start point (X0, Y0)
@@ -306,7 +307,7 @@ void DrawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1)
 
   for (;;)
   {
-    SetPixel(x0, y0);
+    SetPixel(1, x0, y0);
     if (x0 == x1 && y0 == y1) break;
     int e2 = err + err;
     if (e2 > -dy)
@@ -404,10 +405,10 @@ void DrawCircle(uint8_t x0, uint8_t y0, uint8_t radius)
   int ddF_y = -2 * (int)radius;
   int x = 0;
 
-  SetPixel(x0, y0 + radius);
-  SetPixel(x0, y0 - radius);
-  SetPixel(x0 + radius, y0);
-  SetPixel(x0 - radius, y0);
+  SetPixel(1, x0, y0 + radius);
+  SetPixel(1, x0, y0 - radius);
+  SetPixel(1, x0 + radius, y0);
+  SetPixel(1, x0 - radius, y0);
 
   int y = radius;
   while(x < y)
@@ -421,14 +422,14 @@ void DrawCircle(uint8_t x0, uint8_t y0, uint8_t radius)
     x++;
     ddF_x += 2;
     f += ddF_x;
-    SetPixel(x0 + x, y0 + y);
-    SetPixel(x0 - x, y0 + y);
-    SetPixel(x0 + x, y0 - y);
-    SetPixel(x0 - x, y0 - y);
-    SetPixel(x0 + y, y0 + x);
-    SetPixel(x0 - y, y0 + x);
-    SetPixel(x0 + y, y0 - x);
-    SetPixel(x0 - y, y0 - x);
+    SetPixel(1, x0 + x, y0 + y);
+    SetPixel(1, x0 - x, y0 + y);
+    SetPixel(1, x0 + x, y0 - y);
+    SetPixel(1, x0 - x, y0 - y);
+    SetPixel(1, x0 + y, y0 + x);
+    SetPixel(1, x0 - y, y0 + x);
+    SetPixel(1, x0 + y, y0 - x);
+    SetPixel(1, x0 - y, y0 - x);
   }
 }
 
@@ -443,10 +444,10 @@ void DrawFilledCircle(int16_t x0, int16_t y0, int16_t r)
 	int16_t x = 0;
 	int16_t y = r;
 
-    SetPixel(x0, y0 + r);
-    SetPixel(x0, y0 - r);
-    SetPixel(x0 + r, y0);
-    SetPixel(x0 - r, y0);
+    SetPixel(1, x0, y0 + r);
+    SetPixel(1, x0, y0 - r);
+    SetPixel(1, x0 + r, y0);
+    SetPixel(1, x0 - r, y0);
     DrawLine(x0 - r, y0, x0 + r, y0);
 
     while (x < y) {
@@ -484,7 +485,7 @@ void DrawTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x
 void DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3)
 {
 	int16_t deltax = 0, deltay = 0, x = 0, y = 0, xinc1 = 0, xinc2 = 0,
-	yinc1 = 0, yinc2 = 0, den = 0, num = 0, numadd = 0, numpixels = 0,
+	yinc1 = 0, yinc2 = 0, den = 0, Column = 0, numadd = 0, numpixels = 0,
 	curpixel = 0;
 
 #define ABS(x)   ((x) > 0 ? (x) : -(x))
@@ -514,14 +515,14 @@ void DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint
 		xinc1 = 0;
 		yinc2 = 0;
 		den = deltax;
-		num = deltax / 2;
+		Column = deltax / 2;
 		numadd = deltay;
 		numpixels = deltax;
 	} else {
 		xinc2 = 0;
 		yinc1 = 0;
 		den = deltay;
-		num = deltay / 2;
+		Column = deltay / 2;
 		numadd = deltax;
 		numpixels = deltay;
 	}
@@ -530,9 +531,9 @@ void DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint
 	{
 		DrawLine(x, y, x3, y3);
 
-		num += numadd;
-		if (num >= den) {
-			num -= den;
+		Column += numadd;
+		if (Column >= den) {
+			Column -= den;
 			x += xinc1;
 			y += yinc1;
 		}

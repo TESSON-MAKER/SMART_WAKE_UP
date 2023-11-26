@@ -27,7 +27,6 @@ void DrawCircle(uint8_t x0, uint8_t y0, uint8_t radius);
 void DrawFilledCircle(int16_t x0, int16_t y0, int16_t r);
 void DrawTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3);
 void DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3);
-void SetPixel(int16_t x, int16_t y);
-void ResetPixel(int16_t x, int16_t y);
+void SetPixel(uint8_t pixel, int16_t x, int16_t y);
 
 #endif /* ST7920_H_ */

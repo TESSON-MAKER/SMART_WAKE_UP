@@ -286,7 +286,7 @@ void ST7920_Clear(void)
 void SetPixel(uint8_t pixel, int16_t x, int16_t y) 
 {
     if (x < numCols && y < numRows && x >= 0 && y >= 0) 
-		{
+    {
         if (pixel == 1) GLCD_Buffer[y * (numCols/8) + (x/8)] |= 0x80u >> (x%8);
         else GLCD_Buffer[y * (numCols/8) + (x/8)] &= ~(0x80u >> (x%8));
     }

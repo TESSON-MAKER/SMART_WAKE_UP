@@ -66,14 +66,8 @@ void GPIO_DigitalWrite(GPIO_TypeDef *PORT, uint32_t PIN, uint8_t state)
 
 uint8_t GPIO_DigitalRead(GPIO_TypeDef *PORT, uint32_t PIN) 
 {
-	if (PORT->IDR & (1U << PIN)) 
-	{
-		return HIGH;
-	} 
-	else 
-	{
-		return LOW;
-	}
+	if (PORT->IDR & (1U << PIN)) return 1;
+	else return 0;
 }
 
 uint16_t GPIO_AnalogRead(GPIO_TypeDef *GPIO, uint32_t PIN) 

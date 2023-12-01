@@ -60,8 +60,8 @@ void GPIO_PinMode(GPIO_TypeDef *GPIO, uint32_t PIN, uint8_t mode)
 
 void GPIO_DigitalWrite(GPIO_TypeDef *PORT, uint32_t PIN, uint8_t state) 
 {
-	if (state == HIGH) PORT->BSRR = 1U << PIN;
-	else PORT->BSRR = 1U << (PIN + 16);
+	if (state == 1) PORT->BSRR = 1U << PIN;
+	else if (state == 0) PORT->BSRR = 1U << (PIN + 16);
 }
 
 uint8_t GPIO_DigitalRead(GPIO_TypeDef *PORT, uint32_t PIN) 

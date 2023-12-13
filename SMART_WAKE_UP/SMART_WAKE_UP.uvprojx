@@ -329,7 +329,7 @@
             <uC99>1</uC99>
             <uGnu>1</uGnu>
             <useXO>0</useXO>
-            <v6Lang>0</v6Lang>
+            <v6Lang>5</v6Lang>
             <v6LangP>1</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
@@ -419,6 +419,11 @@
               <FileType>1</FileType>
               <FilePath>.\st7920.c</FilePath>
             </File>
+            <File>
+              <FileName>ds3231.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\ds3231.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -458,6 +463,11 @@
               <FileName>st7920_fonts.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\st7920_fonts.h</FilePath>
+            </File>
+            <File>
+              <FileName>ds3231.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\ds3231.h</FilePath>
             </File>
           </Files>
         </Group>

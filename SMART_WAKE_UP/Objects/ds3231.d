@@ -1,4 +1,4 @@
-./objects/main.o: main.c tim.h \
+./objects/ds3231.o: ds3231.c \
   D:\SOFT\uVision\Packs\Keil\STM32F7xx_DFP\2.15.2\Drivers\CMSIS\Device\ST\STM32F7xx\Include\stm32f7xx.h \
   D:\SOFT\uVision\Packs\Keil\STM32F7xx_DFP\2.15.2\Drivers\CMSIS\Device\ST\STM32F7xx\Include\stm32f767xx.h \
   D:\SOFT\uVision\Packs\ARM\CMSIS\5.9.0\CMSIS\Core\Include\core_cm7.h \
@@ -9,6 +9,4 @@
   D:\SOFT\uVision\Packs\ARM\CMSIS\5.9.0\CMSIS\Core\Include\mpu_armv7.h \
   D:\SOFT\uVision\Packs\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cachel1_armv7.h \
   D:\SOFT\uVision\Packs\Keil\STM32F7xx_DFP\2.15.2\Drivers\CMSIS\Device\ST\STM32F7xx\Include\system_stm32f7xx.h \
-  usart.h D:\SOFT\uVision\Keil_V5\ARM\ARMCLANG\Bin\..\include\stdio.h \
-  D:\SOFT\uVision\Keil_V5\ARM\ARMCLANG\Bin\..\include\stdarg.h \
-  st7920_fonts.h st7920.h ds3231.h
+  ds3231.h

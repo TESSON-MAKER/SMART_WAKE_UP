@@ -24,7 +24,7 @@ void URM37_Init(void)
     USART2->CR1 |= USART_CR1_UE;  // Enable USART
 }
 
-void URM37_Send_Command(uint8_t command1, uint8_t command2, uint8_t command3, uint8_t command4) 
+static void URM37_Send_Command(uint8_t command1, uint8_t command2, uint8_t command3, uint8_t command4) 
 {
     // Wait for the USART control register to be ready to send data
     while (!(USART2->ISR & USART_ISR_TXE));
@@ -40,7 +40,7 @@ void URM37_Send_Command(uint8_t command1, uint8_t command2, uint8_t command3, ui
     while (!(USART2->ISR & USART_ISR_TXE)); 
 }
 
-void URM37_Get_Response(uint8_t* data)
+static void URM37_Get_Response(uint8_t* data)
 {
     // Wait for data to be available in the receive buffer
     while (!(USART2->ISR & USART_ISR_RXNE));

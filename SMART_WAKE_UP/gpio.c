@@ -12,6 +12,7 @@ void GPIO_PinMode(GPIO_TypeDef *GPIO, uint16_t PIN, uint8_t mode)
     else if (GPIO == GPIOG) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
     else if (GPIO == GPIOH) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN;
     else if (GPIO == GPIOI) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOIEN;
+		else if (GPIO == GPIOK) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOKEN;
     else return; // Returns if the provided GPIO is not supported or invalid
 
     if (PIN > 15) return; // Returns if the provided pin number is invalid (range: 0-15)

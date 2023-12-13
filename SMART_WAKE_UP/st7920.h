@@ -1,10 +1,3 @@
-/*
- * ST7920.h
- *
- *  Created on: Nov 16, 2022
- *      Author: hussamaldean
- */
-
 #ifndef ST7920_H_
 #define ST7920_H_
 

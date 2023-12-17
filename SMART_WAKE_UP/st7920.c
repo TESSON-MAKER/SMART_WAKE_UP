@@ -43,35 +43,35 @@ static uint8_t GLCD_Buffer[(128*64)/8];
 
 static void ST7920_spi_init(void)
 {
-  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; //enable clock for GPIOA
-  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; //enable clock for GPIOB
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; //enable clock for GPIOA
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; //enable clock for GPIOB
 	
-  //Initialisation de la pin PA1-CS
-  GPIOA->MODER |= GPIO_MODER_MODER1_0;
-  GPIOA->MODER &= ~GPIO_MODER_MODER1_1;
-
-  //Initialisation de la pin PA0-RST
-  GPIOA->MODER |= GPIO_MODER_MODER0_0;
-  GPIOA->MODER &= ~GPIO_MODER_MODER0_1;
-
-  //Initialisation de la pin PB3-SCK
-  GPIOB->MODER |= GPIO_MODER_MODER3_1;
-  GPIOB->MODER &= ~GPIO_MODER_MODER3_0;
-
-  //Initialisation de la pin PB5-MOSI
-  GPIOB->MODER |= GPIO_MODER_MODER5_1;
-  GPIOB->MODER &= ~GPIO_MODER_MODER5_0;
-
-  GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3;
-  GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR5;
-
-  #define SPI1_AF 0x05
-
-  GPIOB->AFR[0]|=(SPI1_AF<<GPIO_AFRL_AFRL3_Pos)|(SPI1_AF<<GPIO_AFRL_AFRL5_Pos);
+	//Initialisation de la pin PA1-CS
+	GPIOA->MODER |= GPIO_MODER_MODER1_0;
+	GPIOA->MODER &= ~GPIO_MODER_MODER1_1;
 	
-  /*Enable clock access to SPI1 module*/
-  RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
-  	
+	//Initialisation de la pin PA0-RST
+	GPIOA->MODER |= GPIO_MODER_MODER0_0;
+	GPIOA->MODER &= ~GPIO_MODER_MODER0_1;
+	
+	//Initialisation de la pin PB3-SCK
+	GPIOB->MODER |= GPIO_MODER_MODER3_1;
+	GPIOB->MODER &= ~GPIO_MODER_MODER3_0;
+	
+	//Initialisation de la pin PB5-MOSI
+	GPIOB->MODER |= GPIO_MODER_MODER5_1;
+	GPIOB->MODER &= ~GPIO_MODER_MODER5_0;
+	
+	GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3;
+	GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR5;
+	
+	#define SPI1_AF 0x05
+	
+	GPIOB->AFR[0]|=(SPI1_AF<<GPIO_AFRL_AFRL3_Pos)|(SPI1_AF<<GPIO_AFRL_AFRL5_Pos);
+	
+	/*Enable clock access to SPI1 module*/
+	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+	
 	/*Set MSB first*/
 	SPI1->CR1 &=~ SPI_CR1_LSBFIRST;
 	
@@ -184,40 +184,44 @@ static const uint8_t ASCII_OFFSET = 32;
 
 void ST7920_Font_Print(uint8_t color, int16_t x, int16_t y, uint8_t *font_buffer, const char *format, ...) 
 {
-    uint8_t dataSize = font_buffer[0];
-    uint8_t length = font_buffer[1];
-    uint8_t height = font_buffer[2];
-    uint8_t bytesPerColumns = font_buffer[3];
-    
-    va_list args;
-    va_start(args, format);
-    char formatted_string[50]; // Taille en fonction de vos besoins
-    vsprintf(formatted_string, format, args);
-    va_end(args);
-
-    const char *str = formatted_string;
-
-    while (*str && x < numCols && y < numRows) {
-        uint8_t currentChar = *str;
-        if (currentChar < MIN_ASCII_VALUE || currentChar > MAX_ASCII_VALUE) return;
-
-        uint8_t letterNumber = currentChar - ASCII_OFFSET;
-        uint8_t letterSize = font_buffer[4 + letterNumber * dataSize];
-
-        for (int column = 0; column < letterSize; column++) {
-            for (int byteColumn = 0; byteColumn < bytesPerColumns; byteColumn++) {
-                uint8_t data = font_buffer[5 + letterNumber * dataSize + byteColumn + bytesPerColumns * column];
-                for (int bit = 0; bit < 8; bit++) {
-                    uint8_t pixel = (data >> bit) & 1;
-                    int16_t a = x + column;
-                    int16_t b = y + (bit + 8 * byteColumn);
-                    if (pixel == 1) SetPixel(color, a, b);
-                }
-            }
-        }
-        x += letterSize + (length / 10);
-        str++;
-    }
+	uint8_t dataSize = font_buffer[0];
+	uint8_t length = font_buffer[1];
+	uint8_t height = font_buffer[2];
+	uint8_t bytesPerColumns = font_buffer[3];
+	
+	va_list args;
+	va_start(args, format);
+	char formatted_string[50]; // Taille en fonction de vos besoins
+	vsprintf(formatted_string, format, args);
+	va_end(args);
+	
+	const char *str = formatted_string;
+	
+	while (*str && x < numCols && y < numRows) 
+	{
+		uint8_t currentChar = *str;
+		if (currentChar < MIN_ASCII_VALUE || currentChar > MAX_ASCII_VALUE) return;
+		
+		uint8_t letterNumber = currentChar - ASCII_OFFSET;
+		uint8_t letterSize = font_buffer[4 + letterNumber * dataSize];
+		
+		for (int column = 0; column < letterSize; column++) 
+		{
+			for (int byteColumn = 0; byteColumn < bytesPerColumns; byteColumn++) 
+			{
+				uint8_t data = font_buffer[5 + letterNumber * dataSize + byteColumn + bytesPerColumns * column];
+				for (int bit = 0; bit < 8; bit++) 
+				{
+					uint8_t pixel = (data >> bit) & 1;
+					int16_t a = x + column;
+					int16_t b = y + (bit + 8 * byteColumn);
+					if (pixel == 1) SetPixel(color, a, b);
+				}
+			}
+		}
+		x += letterSize + (length / 10);
+		str++;
+	}
 }
 
 // switch to graphic mode or normal mode::: enable = 1 -> graphic mode enable = 0 -> normal mode

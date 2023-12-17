@@ -43,43 +43,35 @@ static uint8_t GLCD_Buffer[(128*64)/8];
 
 static void ST7920_spi_init(void)
 {
-	//enable clock for GPIOA
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; 
+  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; //enable clock for GPIOA
+  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; //enable clock for GPIOB
 	
-	//Initialisation de la pin PA1-CS
-	GPIOA->MODER |= GPIO_MODER_MODER1_0;
-	GPIOA->MODER &= ~GPIO_MODER_MODER1_1;
+  //Initialisation de la pin PA1-CS
+  GPIOA->MODER |= GPIO_MODER_MODER1_0;
+  GPIOA->MODER &= ~GPIO_MODER_MODER1_1;
 
-	//Initialisation de la pin PA0-RST
-	GPIOA->MODER |= GPIO_MODER_MODER0_0;
-	GPIOA->MODER &= ~GPIO_MODER_MODER0_1;
+  //Initialisation de la pin PA0-RST
+  GPIOA->MODER |= GPIO_MODER_MODER0_0;
+  GPIOA->MODER &= ~GPIO_MODER_MODER0_1;
 
-	//Initialisation de la pin PA5-SCK
-	GPIOA->MODER |= GPIO_MODER_MODER5_1;
-	GPIOA->MODER &= ~GPIO_MODER_MODER5_0;
+  //Initialisation de la pin PB3-SCK
+  GPIOB->MODER |= GPIO_MODER_MODER3_1;
+  GPIOB->MODER &= ~GPIO_MODER_MODER3_0;
 
-	//Initialisation de la pin PA7-MOSI
-	GPIOA->MODER |= GPIO_MODER_MODER7_1;
-	GPIOA->MODER &= ~GPIO_MODER_MODER7_0;
-	
-	//State changing speed
-	GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR1;
-	GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR7;
-	GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR5;
-	GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR0;
-	
-	GPIOA->PUPDR &= ~GPIO_PUPDR_PUPDR7_1;
-	GPIOA->PUPDR &= ~GPIO_PUPDR_PUPDR7_0;
-	
-	GPIOA->OTYPER &= ~GPIO_OTYPER_OT7;
-	
-	#define SPI1_AF 0x05
+  //Initialisation de la pin PB5-MOSI
+  GPIOB->MODER |= GPIO_MODER_MODER5_1;
+  GPIOB->MODER &= ~GPIO_MODER_MODER5_0;
 
-	GPIOA->AFR[0]|=(SPI1_AF<<GPIO_AFRL_AFRL5_Pos)|(SPI1_AF<<GPIO_AFRL_AFRL7_Pos);
+  GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3;
+  GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR5;
+
+  #define SPI1_AF 0x05
+
+  GPIOB->AFR[0]|=(SPI1_AF<<GPIO_AFRL_AFRL3_Pos)|(SPI1_AF<<GPIO_AFRL_AFRL5_Pos);
 	
-	/*Enable clock access to SPI1 module*/
-	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
-	
+  /*Enable clock access to SPI1 module*/
+  RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+  	
 	/*Set MSB first*/
 	SPI1->CR1 &=~ SPI_CR1_LSBFIRST;
 	
@@ -92,11 +84,11 @@ static void ST7920_spi_init(void)
 	SPI1->CR1 |= SPI_CR1_SSI;
 	
 	/*Set SPI mode to be MODE1 (CPHA1 CPOL0)*/
-	SPI1->CR1|=SPI_CR1_CPHA;
+	SPI1->CR1 |= SPI_CR1_CPHA;
 	
 	/*Set the frequency of SPI to 500kHz*/
 	SPI1->CR1 |= SPI_CR1_BR_2;
-
+	
 	/*Set the size to 8bits*/
 	SPI1->CR2 |= SPI_CR2_DS_0 | SPI_CR2_DS_1 | SPI_CR2_DS_2;
 	SPI1->CR2 &= ~SPI_CR2_DS_3;
@@ -115,7 +107,7 @@ static void st7920_spi_transmit(uint8_t *data,uint32_t size)
 		while(!(SPI1->SR & (SPI_SR_TXE))){}
 
 		/*Write the data to the data register*/
-		*(volatile uint8_t*)&SPI1->DR = data[i];
+		*(volatile uint8_t*) & SPI1->DR = data[i];
 		i++;
 	}
 	/*Wait until TXE is set*/
@@ -199,29 +191,23 @@ void ST7920_Font_Print(uint8_t color, int16_t x, int16_t y, uint8_t *font_buffer
     
     va_list args;
     va_start(args, format);
-
     char formatted_string[50]; // Taille en fonction de vos besoins
     vsprintf(formatted_string, format, args);
-
     va_end(args);
 
     const char *str = formatted_string;
 
-    while (*str && x < numCols && y < numRows) 
-    {
+    while (*str && x < numCols && y < numRows) {
         uint8_t currentChar = *str;
         if (currentChar < MIN_ASCII_VALUE || currentChar > MAX_ASCII_VALUE) return;
 
         uint8_t letterNumber = currentChar - ASCII_OFFSET;
         uint8_t letterSize = font_buffer[4 + letterNumber * dataSize];
 
-        for (int column = 0; column < letterSize; column++) 
-        {
-            for (int byteColumn = 0; byteColumn < bytesPerColumns; byteColumn++) 
-            {
+        for (int column = 0; column < letterSize; column++) {
+            for (int byteColumn = 0; byteColumn < bytesPerColumns; byteColumn++) {
                 uint8_t data = font_buffer[5 + letterNumber * dataSize + byteColumn + bytesPerColumns * column];
-                for (int bit = 0; bit < 8; bit++) 
-                {
+                for (int bit = 0; bit < 8; bit++) {
                     uint8_t pixel = (data >> bit) & 1;
                     int16_t a = x + column;
                     int16_t b = y + (bit + 8 * byteColumn);

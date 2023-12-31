@@ -2,7 +2,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "urm37.h"
-//#include "servo.h"
+#include "servo.h"
 #include "st7920_fonts.h"
 #include "st7920.h"
 #include "ds3231.h"
@@ -40,12 +40,12 @@ int main(void)
 	ST7920_Clear_GLCD_Buffer();
 	ST7920_Send_GLCD_Buffer();
 	
-	/*uint8_t dataS[7] = {DS3231_DEC_BCD(0), DS3231_DEC_BCD(10), DS3231_DEC_BCD(22), DS3231_DEC_BCD(5), DS3231_DEC_BCD(29), DS3231_DEC_BCD(12), DS3231_DEC_BCD(21)};
-	DS3231_WriteMemory(0x68, 0x00, dataS, 7);*/
+	//uint8_t dataS[7] = {DS3231_DEC_BCD(0), DS3231_DEC_BCD(03), DS3231_DEC_BCD(17), DS3231_DEC_BCD(5), DS3231_DEC_BCD(31), DS3231_DEC_BCD(12), DS3231_DEC_BCD(23)};
+	//DS3231_WriteMemory(0x68, 0x00, dataS, 7);
 	int i = 0;
+	
 	while (1) 
 	{
-		
 		GPIO_DigitalWrite(GPIOB, 7, state);
 		temperature = URM37_GetTemperature();
 		distance = URM37_GetDistance();
@@ -72,7 +72,6 @@ int main(void)
 		ST7920_Font_Print(1, 0, 50, Arial12x12, "T : %.1f degrees", temperature);
 		ST7920_Font_Print(1, 0, 2, Arial12x12, "Dist : %d", distance);
 		ST7920_Send_GLCD_Buffer();
-		
 		state ^= 1;		
 	}
 }

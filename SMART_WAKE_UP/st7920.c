@@ -4,17 +4,11 @@
 
 uint8_t lcd_data[3];
 
-#define CS_LOW 		(GPIOA->BSRR=GPIO_BSRR_BR1)
-#define CS_HIGH 	(GPIOA->BSRR=GPIO_BSRR_BS1)
+#define CS_LOW (GPIOA->BSRR=GPIO_BSRR_BR0)
+#define CS_HIGH (GPIOA->BSRR=GPIO_BSRR_BS0)
 
-#define RST_LOW 	(GPIOA->BSRR=GPIO_BSRR_BR0)
-#define RST_HIGH 	(GPIOA->BSRR=GPIO_BSRR_BS0)
-
-#define SCK_LOW 	(GPIOA->BSRR=GPIO_BSRR_BR5)
-#define SCK_HIGH 	(GPIOA->BSRR=GPIO_BSRR_BS5)
-
-#define SID_LOW 	(GPIOA->BSRR=GPIO_BSRR_BR7)
-#define SID_HIGH 	(GPIOA->BSRR=GPIO_BSRR_BS7)
+#define RST_LOW (GPIOA->BSRR=GPIO_BSRR_BR1)
+#define RST_HIGH (GPIOA->BSRR=GPIO_BSRR_BS1)
 
 static uint8_t numRows = 64;
 static uint8_t numCols = 128;
@@ -44,58 +38,62 @@ static uint8_t GLCD_Buffer[(128*64)/8];
 static void ST7920_spi_init(void)
 {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; //enable clock for GPIOA
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; //enable clock for GPIOB
-	
-	//Initialisation de la pin PA1-CS
+
+	//Initialisation de la pin PA0-CS
 	GPIOA->MODER |= GPIO_MODER_MODER1_0;
 	GPIOA->MODER &= ~GPIO_MODER_MODER1_1;
-	
-	//Initialisation de la pin PA0-RST
+
+	//Initialisation de la pin PA1-RST
 	GPIOA->MODER |= GPIO_MODER_MODER0_0;
 	GPIOA->MODER &= ~GPIO_MODER_MODER0_1;
-	
-	//Initialisation de la pin PB3-SCK
-	GPIOB->MODER |= GPIO_MODER_MODER3_1;
-	GPIOB->MODER &= ~GPIO_MODER_MODER3_0;
-	
-	//Initialisation de la pin PB5-MOSI
-	GPIOB->MODER |= GPIO_MODER_MODER5_1;
-	GPIOB->MODER &= ~GPIO_MODER_MODER5_0;
-	
-	GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3;
-	GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR5;
-	
+
+	//Initialisation de la pin PA5-SCK
+	GPIOA->MODER |= GPIO_MODER_MODER5_1;
+	GPIOA->MODER &= ~GPIO_MODER_MODER5_0;
+
+	//Initialisation de la pin PA7-MOSI
+	GPIOA->MODER |= GPIO_MODER_MODER7_1;
+	GPIOA->MODER &= ~GPIO_MODER_MODER7_0;
+
+	GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR7;
+	GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR5;
+
+	GPIOA->PUPDR &= ~GPIO_PUPDR_PUPDR7;
+
+	GPIOA->OTYPER &= ~GPIO_OTYPER_OT7;
+
 	#define SPI1_AF 0x05
-	
-	GPIOB->AFR[0]|=(SPI1_AF<<GPIO_AFRL_AFRL3_Pos)|(SPI1_AF<<GPIO_AFRL_AFRL5_Pos);
-	
+
+	GPIOA->AFR[0]|=(SPI1_AF<<GPIO_AFRL_AFRL5_Pos)|(SPI1_AF<<GPIO_AFRL_AFRL7_Pos);
+
 	/*Enable clock access to SPI1 module*/
 	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
-	
+
 	/*Set MSB first*/
 	SPI1->CR1 &=~ SPI_CR1_LSBFIRST;
-	
+
 	/*Set mode to MASTER*/
 	SPI1->CR1 |= SPI_CR1_MSTR;
-	
+
 	/*Select software slave management by
-	 * setting SSM=1 and SSI=1*/
+	* setting SSM=1 and SSI=1*/
 	SPI1->CR1 |= SPI_CR1_SSM;
 	SPI1->CR1 |= SPI_CR1_SSI;
-	
+
 	/*Set SPI mode to be MODE1 (CPHA1 CPOL0)*/
 	SPI1->CR1 |= SPI_CR1_CPHA;
-	
+
 	/*Set the frequency of SPI to 500kHz*/
 	SPI1->CR1 |= SPI_CR1_BR_2;
-	
+
 	/*Set the size to 8bits*/
 	SPI1->CR2 |= SPI_CR2_DS_0 | SPI_CR2_DS_1 | SPI_CR2_DS_2;
 	SPI1->CR2 &= ~SPI_CR2_DS_3;
-	
+
 	/*Enable SPI module*/
 	SPI1->CR1 |= SPI_CR1_SPE;
 }
+
 
 static void st7920_spi_transmit(uint8_t *data,uint32_t size)
 {
@@ -103,12 +101,12 @@ static void st7920_spi_transmit(uint8_t *data,uint32_t size)
 
 	while(i<size)
 	{
-		/*Wait until TXE is set*/
-		while(!(SPI1->SR & (SPI_SR_TXE))){}
+	/*Wait until TXE is set*/
+	while(!(SPI1->SR & (SPI_SR_TXE))){}
 
-		/*Write the data to the data register*/
-		*(volatile uint8_t*) & SPI1->DR = data[i];
-		i++;
+	/*Write the data to the data register*/
+	*(volatile uint8_t*) & SPI1->DR = data[i];
+	i++;
 	}
 	/*Wait until TXE is set*/
 	while(!(SPI1->SR & (SPI_SR_TXE))){}
@@ -132,12 +130,10 @@ static void ST7920_SendCmd(uint8_t cmd)
 	st7920_spi_transmit(lcd_data,3);
 
 	CS_LOW;  // PUll the CS LOW
-
 }
 
 static void ST7920_SendData (uint8_t data)
 {
-
 	CS_HIGH;
 
 	lcd_data[0]=0xFA;
@@ -578,7 +574,7 @@ void DrawFilledTriangle(uint8_t color, uint16_t x1, uint16_t y1, uint16_t x2, ui
 	}
 }
 
-void ST7920_init(void)
+void ST7920_Init(void)
 {
 	TIM_Wait(100);
 	ST7920_spi_init();

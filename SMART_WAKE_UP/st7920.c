@@ -15,7 +15,7 @@ static uint8_t numCols = 128;
 static uint8_t Graphic_Check = 0;
 static uint8_t GLCD_Buffer[(128*64)/8];
 
-#define LCD_CLS         0x01
+#define LCD_CLS					0x01
 #define LCD_HOME        0x02
 #define LCD_ADDRINC     0x06
 #define LCD_DISPLAYON   0x0C

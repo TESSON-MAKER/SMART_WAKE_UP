@@ -323,14 +323,14 @@
             <PlainCh>0</PlainCh>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
-            <wLevel>2</wLevel>
+            <wLevel>1</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
             <uGnu>1</uGnu>
             <useXO>0</useXO>
             <v6Lang>5</v6Lang>
-            <v6LangP>1</v6LangP>
+            <v6LangP>6</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
             <v6Lto>0</v6Lto>
@@ -424,6 +424,16 @@
               <FileType>1</FileType>
               <FilePath>.\ds3231.c</FilePath>
             </File>
+            <File>
+              <FileName>sh1106.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sh1106.c</FilePath>
+            </File>
+            <File>
+              <FileName>buttons.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\buttons.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -460,14 +470,24 @@
               <FilePath>.\st7920.h</FilePath>
             </File>
             <File>
+              <FileName>ds3231.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\ds3231.h</FilePath>
+            </File>
+            <File>
+              <FileName>sh1106.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\sh1106.h</FilePath>
+            </File>
+            <File>
               <FileName>st7920_fonts.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\st7920_fonts.h</FilePath>
             </File>
             <File>
-              <FileName>ds3231.h</FileName>
+              <FileName>buttons.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\ds3231.h</FilePath>
+              <FilePath>.\buttons.h</FilePath>
             </File>
           </Files>
         </Group>

@@ -9,7 +9,7 @@ License Information: Paul TESSON, TESSON, LIC=----
  
 Tool Versions:
 Toolchain:       MDK-Lite  Version: 5.38.0.0
-Toolchain Path:  D:\SETUP\uVision\Keil_v5\ARM\ARMCLANG\Bin
+Toolchain Path:  D:\SOFT\uVision\Keil_V5\ARM\ARMCLANG\Bin
 C Compiler:      ArmClang.exe V6.19
 Assembler:       Armasm.exe V6.19
 Linker/Locator:  ArmLink.exe V6.19
@@ -21,66 +21,27 @@ Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.1.0.0
 Dialog DLL:      TCM.DLL V1.56.4.0
  
 <h2>Project:</h2>
-C:\Users\Utilisateur\Downloads\SMART_WAKE_UP-main\SMART_WAKE_UP\SMART_WAKE_UP.uvprojx
-Project File Date:  12/29/2023
+D:\#Documents\UVISION\SMART_WAKE_UP\SMART_WAKE_UP.uvprojx
+Project File Date:  01/23/2024
 
 <h2>Output:</h2>
-*** Using Compiler 'V6.19', folder: 'D:\SETUP\uVision\Keil_v5\ARM\ARMCLANG\Bin'
-Build target 'Target'
-main.c(4): warning: In file included from...
-./urm37.h(11): warning: no newline at end of file [-Wnewline-eof]
-#endif /* URM37_H */
-                    ^
-main.c(25): warning: no previous extern declaration for non-static variable 'temperature' [-Wmissing-variable-declarations]
-float temperature = 0;
-      ^
-main.c(25): note: declare 'static' if the variable is not intended to be used outside of this translation unit
-float temperature = 0;
-^
-main.c(26): warning: no previous extern declaration for non-static variable 'distance' [-Wmissing-variable-declarations]
-uint16_t distance = 0;
-         ^
-main.c(26): note: declare 'static' if the variable is not intended to be used outside of this translation unit
-uint16_t distance = 0;
-^
-main.c(55): warning: implicit conversion loses integer precision: 'int' to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-                DS3231_Second = DS3231_BCD_DEC(data[0] & 0x7F);
-                              ~ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-main.c(56): warning: implicit conversion loses integer precision: 'int' to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-                DS3231_Minute = DS3231_BCD_DEC(data[1]);
-                              ~ ^~~~~~~~~~~~~~~~~~~~~~~
-main.c(57): warning: implicit conversion loses integer precision: 'int' to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-                DS3231_Hour = DS3231_BCD_DEC(data[2] & 0x3F);
-                            ~ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-main.c(58): warning: implicit conversion loses integer precision: 'int' to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-                DS3231_DayWeek = DS3231_BCD_DEC(data[3]);
-                               ~ ^~~~~~~~~~~~~~~~~~~~~~~
-main.c(59): warning: implicit conversion loses integer precision: 'int' to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-                DS3231_DayMonth = DS3231_BCD_DEC(data[4]);
-                                ~ ^~~~~~~~~~~~~~~~~~~~~~~
-main.c(60): warning: implicit conversion loses integer precision: 'int' to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-                DS3231_Month = DS3231_BCD_DEC(data[5]);
-                             ~ ^~~~~~~~~~~~~~~~~~~~~~~
-main.c(61): warning: implicit conversion loses integer precision: 'int' to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-                DS3231_Year = DS3231_BCD_DEC(data[6]);
-                            ~ ^~~~~~~~~~~~~~~~~~~~~~~
-main.c(69): warning: implicit conversion loses integer precision: 'int' to 'int16_t' (aka 'short') [-Wimplicit-int-conversion]
-                else ST7920_Font_Print(1, 7+i, 20, Arial28x28, "%02d:%02d:%02d", DS3231_Hour, DS3231_Minute, DS3231_Second);
-                     ~~~~~~~~~~~~~~~~~    ~^~
-main.c(72): warning: implicit conversion increases floating-point precision: 'float' to 'double' [-Wdouble-promotion]
-                ST7920_Font_Print(1, 0, 50, Arial12x12, "T : %.1f degrees", temperature);
-                ~~~~~~~~~~~~~~~~~                                           ^~~~~~~~~~~
-main.c(53): warning: mixing declarations and code is incompatible with standards before C99 [-Wdeclaration-after-statement]
-                uint8_t data[7] = {0};
-                        ^
-main.c(45): warning: mixing declarations and code is incompatible with standards before C99 [-Wdeclaration-after-statement]
-        int i = 0;
-            ^
-14 warnings generated.
+*** Using Compiler 'V6.19', folder: 'D:\SOFT\uVision\Keil_V5\ARM\ARMCLANG\Bin'
+Rebuild target 'Target'
+compiling servo.c...
+compiling gpio.c...
 compiling main.c...
+compiling tim.c...
+compiling urm37.c...
+compiling usart.c...
+compiling ds3231.c...
+compiling st7920.c...
+compiling buttons.c...
+assembling startup_stm32f767xx.s...
+compiling sh1106.c...
+compiling system_stm32f7xx.c...
 linking...
-Program Size: Code=11716 RO-data=1184 RW-data=13268 ZI-data=2672  
-".\Objects\SMART_WAKE_UP.axf" - 0 Error(s), 14 Warning(s).
+Program Size: Code=12132 RO-data=1312 RW-data=13380 ZI-data=2696  
+".\Objects\SMART_WAKE_UP.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -98,20 +59,20 @@ Package Vendor: Keil
 
 <h2>Collection of Component include folders:</h2>
   ./RTE/_Target
-  D:/SETUP/uVision/Packs/ARM/CMSIS/5.9.0/CMSIS/Core/Include
-  D:/SETUP/uVision/Packs/Keil/STM32F7xx_DFP/2.15.2/Drivers/CMSIS/Device/ST/STM32F7xx/Include
+  D:/SOFT/uVision/Packs/ARM/CMSIS/5.9.0/CMSIS/Core/Include
+  D:/SOFT/uVision/Packs/Keil/STM32F7xx_DFP/2.15.2/Drivers/CMSIS/Device/ST/STM32F7xx/Include
 
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.6.0
 
    * Component: Keil::Device:Startup:1.2.5
-      Source file:   MDK/Device/Source/ARM/STM32F76x_77x_OPT.s
-      Source file:   Drivers/CMSIS/Device/ST/STM32F7xx/Source/Templates/arm/startup_stm32f767xx.s
       Include file:  Drivers/CMSIS/Device/ST/STM32F7xx/Include/stm32f7xx.h
+      Source file:   MDK/Device/Source/ARM/STM32F76x_77x_OPT.s
       Source file:   MDK/Device/Source/ARM/STM32F76x_77x_OTP.s
+      Source file:   Drivers/CMSIS/Device/ST/STM32F7xx/Source/Templates/arm/startup_stm32f767xx.s
       Source file:   Drivers/CMSIS/Device/ST/STM32F7xx/Source/Templates/system_stm32f7xx.c
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>

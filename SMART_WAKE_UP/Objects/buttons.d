@@ -1,4 +1,4 @@
-./objects/tim.o: tim.c tim.h \
+./objects/buttons.o: buttons.c buttons.h \
   D:\SOFT\uVision\Packs\Keil\STM32F7xx_DFP\2.15.2\Drivers\CMSIS\Device\ST\STM32F7xx\Include\stm32f7xx.h \
   D:\SOFT\uVision\Packs\Keil\STM32F7xx_DFP\2.15.2\Drivers\CMSIS\Device\ST\STM32F7xx\Include\stm32f767xx.h \
   D:\SOFT\uVision\Packs\ARM\CMSIS\5.9.0\CMSIS\Core\Include\core_cm7.h \

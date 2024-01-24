@@ -3,71 +3,120 @@
 #define USART2_AF 0x07
 #define BAUD_RATE 9600
 
-// Function prototypes
-static void URM37_Send_Command(uint8_t command1, uint8_t command2, uint8_t command3, uint8_t command4);
-static void URM37_Get_Response(uint8_t* data);
+static volatile int indexT = 0;
 
+extern volatile uint8_t URM37_Temperature[4] = {0x11, 0x00, 0x00, 0x11};
+extern volatile uint8_t URM37_Distance[4] = {0x22, 0x00, 0x00, 0x22};
 
+static uint8_t URM37_TempReceive[4] = {0};
+static uint8_t URM37_DistReceive[4] = {0};
 
-// Initialize URM37
+static  int indexR = 0;
+extern uint8_t dataR[4] = {0};
+static uint8_t URM37_Available = 1;
+
+/*******************************************************************
+ * @name       :URM37_Init(void)
+ * @date       :2024-01-19
+ * @function   :USART Initialization
+ * @parameters :None
+ * @retvalue   :None
+********************************************************************/ 
 void URM37_Init(void)
 {
 	// Enable clock for GPIO port D
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
 
-	// Configure PD5 (TX) and PD6 (RX) for USART communication
-	GPIOD->MODER &= ~(GPIO_MODER_MODER5 | GPIO_MODER_MODER6);  // Reset the mode
-	GPIOD->MODER |= GPIO_MODER_MODER5_1 | GPIO_MODER_MODER6_1;  // Alternate mode
-	GPIOD->AFR[0] |= (USART2_AF << GPIO_AFRL_AFRL5_Pos) | (USART2_AF << GPIO_AFRL_AFRL6_Pos);  // Alternate function 7 for PD5 and PD6
+	// Initialization of pin PD5 (Tx)
+	GPIOD->MODER |= GPIO_MODER_MODER5_1;
+	GPIOD->MODER &= ~GPIO_MODER_MODER5_0;
+
+	// Initialization of pin PD6 (Rx)
+	GPIOD->MODER |= GPIO_MODER_MODER6_1; 
+	GPIOD->MODER &= ~GPIO_MODER_MODER6_0;
+
+	GPIOD->AFR[0] |= USART2_AF << GPIO_AFRL_AFRL5_Pos;
+	GPIOD->AFR[0] |= USART2_AF << GPIO_AFRL_AFRL6_Pos;  
 
 	// Enable clock for USART2
 	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
 
-	// Configure USART2 for communication
-	USART2->BRR = SystemCoreClock / BAUD_RATE;
+	// Calculate USART2 BRR value for the desired BAUD_RATE
+	USART2->BRR = SystemCoreClock / BAUD_RATE;  // Set the baud rate
+
 	USART2->CR1 = USART_CR1_TE | USART_CR1_RE;  // Enable transmission and reception
 	USART2->CR1 |= USART_CR1_UE;  // Enable USART
+
+	NVIC_SetPriority(USART2_IRQn, 0);
+	NVIC_EnableIRQ(USART2_IRQn);
+
+
+	// Configurer les interruptions pour la r?eption et la transmission USART2
+	USART2->CR1 |= USART_CR1_RXNEIE;
 }
 
-// Send a command to URM37
-static void URM37_Send_Command(uint8_t command1, uint8_t command2, uint8_t command3, uint8_t command4) 
+/*******************************************************************
+ * @name       :URM37_Measure(void)
+ * @date       :2024-01-19
+ * @function   :Begin measure
+ * @parameters :Temperature or distance
+ * @retvalue   :None
+********************************************************************/ 
+void URM37_Measure(uint8_t *type)
 {
-	uint8_t commands[] = {command1, command2, command3, command4};
-
-	for (int i = 0; i < 4; ++i) 
+	if (URM37_Available) 
 	{
-		// Wait for the USART control register to be ready to send data
-		while (!(USART2->ISR & USART_ISR_TXE));
-		// Send the corresponding command
-		USART2->TDR = (uint8_t)commands[i];
+		while (indexT < 4) 
+		{
+			while(!(USART2->ISR & USART_ISR_TC));
+			
+			USART2->TDR = type[indexT];
+			indexT++;
+		}
+		indexT = 0;
+		URM37_Available = 0;
 	}
 }
 
-// Receive response from URM37
-static void URM37_Get_Response(uint8_t* data)
+/*******************************************************************
+ * @name       :USART2_IRQHandler(void) 
+ * @date       :2024-01-19
+ * @function   :Get data about URM37 with IRQ
+ * @parameters :None
+ * @retvalue   :None
+********************************************************************/ 
+void USART2_IRQHandler(void) 
 {
-	for (int i = 0; i < 4; ++i) 
+	if ((USART2->ISR & USART_ISR_RXNE) && (indexR < 4))
 	{
-		// Wait for data to be available in the receive buffer
-		while (!(USART2->ISR & USART_ISR_RXNE));
-		// Read the response byte 
-		data[i] = (uint8_t)USART2->RDR;
+		dataR[indexR] = (uint8_t)USART2->RDR; //Receive data
+		indexR++;	
+		
+		if(indexR >= 4)
+		{
+			if (dataR[0] == 0x11) for(int i=0; i<4; ++i) URM37_TempReceive[i] = dataR[i];
+			else if (dataR[0] == 0x22) for(int i=0; i<4; ++i) URM37_DistReceive[i] = dataR[i];
+			
+			URM37_Available = 1;
+			indexR = 0;
+		}
 	}
 }
 
-// Get temperature from URM37
+/*******************************************************************
+ * @name       :URM37_GetTemperature(void)
+ * @date       :2024-01-23
+ * @function   :Get temperature
+ * @parameters :None
+ * @retvalue   :None
+********************************************************************/
 float URM37_GetTemperature(void)
 {
-	uint8_t response[4];
-	URM37_Send_Command(0x11, 0x00, 0x00, 0x11);
-	URM37_Get_Response(response);
-
-	// Check if the reading is valid
-	if (response[0] != 0x11 || response[1] == 0xFF || response[2] == 0xFF)
+	if (URM37_TempReceive[0] != 0x11 || URM37_TempReceive[1] == 0xFF || URM37_TempReceive[2] == 0xFF)
 		return 0; // Reading is not valid
 
 	// Combine the high and low bytes to get the 12-bit temperature value
-	int16_t temperature = (response[1] << 8) | response[2];
+	int16_t temperature = (URM37_TempReceive[1] << 8) | URM37_TempReceive[2];
 
 	// Convert the temperature to a float with 0.1 degC resolution
 	float temperatureFloat = temperature * 0.1;
@@ -79,14 +128,18 @@ float URM37_GetTemperature(void)
 	return temperatureFloat;
 }
 
-// Get distance from URM37
+/*******************************************************************
+ * @name       :URM37_GetDistance(void)
+ * @date       :2024-01-23
+ * @function   :Get temperature
+ * @parameters :None
+ * @retvalue   :None
+********************************************************************/
 uint16_t URM37_GetDistance(void)
-{
-	uint8_t response[3];
-	URM37_Send_Command(0x22, 0x00, 0x00, 0x22);
-	URM37_Get_Response(response);
-
-	// Check if the reading is valid and return distance if valid, otherwise return 0
-	return (response[0] == 0x22 && response[1] != 0xFF && response[2] != 0xFF) ?
-		((uint16_t)((response[1] << 8) | response[2])) : 0;
+{    
+	if (URM37_TempReceive[0] != 0x22 || URM37_TempReceive[1] == 0xFF || URM37_TempReceive[2] == 0xFF)
+		return 0; // Reading is not valid
+	
+	uint16_t distance = (uint16_t)((URM37_DistReceive[1] << 8) | URM37_DistReceive[2]);
+	return distance;
 }

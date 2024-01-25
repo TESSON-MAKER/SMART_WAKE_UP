@@ -64,8 +64,15 @@ int main(void)
 		
 		GPIO_DigitalWrite(GPIOB, 7, state1);
 		
-		if(BUTTON_Click(&buttonTop)) state2 ^= 1;	
-		if(BUTTON_Click(&buttonBottom)) state3 ^= 1;
+		if(BUTTONS_Switch()) /*future partie setting*/
+		{
+			if(BUTTONS_Click(&buttonTop)) state2 ^= 1;	
+			if(BUTTONS_Click(&buttonBottom)) state3 ^= 1;
+			if(BUTTONS_Click(&buttonRight)) state2 ^= 1;	
+			if(BUTTONS_Click(&buttonLeft)) state3 ^= 1;	
+			if(BUTTONS_Click(&buttonReturn)) state3 ^= 1;	
+			if(BUTTONS_Click(&buttonReset)) state2 ^= 1;	
+		}
 		
 		GPIO_DigitalWrite(GPIOB, 14, state2);
 		GPIO_DigitalWrite(GPIOB, 0, state3);

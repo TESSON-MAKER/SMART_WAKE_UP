@@ -83,7 +83,7 @@ uint8_t BUTTONS_Click(Button *button)
 }
 
 /*******************************************************************
- * @name       :BUTTONS_Switch(Button *button)
+ * @name       :BUTTONS_Switch(void)
  * @date       :2024-01-25
  * @function   :Switch
  * @parameters :None

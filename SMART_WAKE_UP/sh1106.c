@@ -48,13 +48,13 @@ enum SH1106_DIMENSIONS
 static uint8_t SH1106_Buffer[(WIDTH*HEIGHT)/SH1106_DATA_SIZE];
 
 /*******************************************************************
- * @name       :SH1106_SpiTransmit
+ * @name       :SH1106_SpiInit
  * @date       :2024-01-03
  * @function   :SPI Initialization
  * @parameters :None
  * @retvalue   :None
 ********************************************************************/ 
-static void SH1106_SpiTransmit(void)
+static void SH1106_SpiInit(void)
 {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; // enable clock for GPIOA
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN; // enable clock for GPIOC
@@ -108,13 +108,13 @@ static void SH1106_SpiTransmit(void)
 }
 
 /*******************************************************************
- * @name       :SH1106_SpiTransmit
+ * @name       :SH1106_Spi_Transmit
  * @date       :2024-01-03
  * @function   :Send with spi
  * @parameters :data
  * @retvalue   :None
 ********************************************************************/ 
-static void SH1106_SpiTransmit(uint8_t data)
+static void SH1106_Spi_Transmit(uint8_t data)
 {
 	/*Wait until TXE is set*/
 	while(!(SPI1->SR & (SPI_SR_TXE)));
@@ -145,7 +145,7 @@ static void SH1106_SendCmd(uint8_t cmd)
 {
 	SH1106_DC_LOW; //Command mode
 	SH1106_CS_LOW;
-	SH1106_SpiTransmit(cmd);
+	SH1106_Spi_Transmit(cmd);
 	SH1106_CS_HIGH;
 }
 
@@ -173,7 +173,7 @@ static void SH1106_SendData(uint8_t dat)
 {
 	SH1106_DC_HIGH; //Data mode
 	SH1106_CS_LOW;
-	SH1106_SpiTransmit(dat);
+	SH1106_Spi_Transmit(dat);
 	SH1106_CS_HIGH;
 }
 
@@ -487,7 +487,7 @@ void SH1106_ClearBuffer(void)
 ********************************************************************/ 
 void SH1106_Init(void)
 {
-	SH1106_SpiTransmit();
+	SH1106_SpiInit();
 	TIM_Wait(200);
 	SH1106_Reset();
 	SH1106_SendCmd(DISPLAY_OFF);

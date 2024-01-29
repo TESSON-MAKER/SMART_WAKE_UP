@@ -48,13 +48,13 @@ enum SH1106_DIMENSIONS
 static uint8_t SH1106_Buffer[(WIDTH*HEIGHT)/SH1106_DATA_SIZE];
 
 /*******************************************************************
- * @name       :SH1106_spi_init(void)
+ * @name       :SH1106_SpiTransmit
  * @date       :2024-01-03
  * @function   :SPI Initialization
  * @parameters :None
  * @retvalue   :None
 ********************************************************************/ 
-static void SH1106_spi_init(void)
+static void SH1106_SpiTransmit(void)
 {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; // enable clock for GPIOA
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN; // enable clock for GPIOC
@@ -108,13 +108,13 @@ static void SH1106_spi_init(void)
 }
 
 /*******************************************************************
- * @name       :SH1106_spi_transmit(uint8_t data)
+ * @name       :SH1106_SpiTransmit
  * @date       :2024-01-03
  * @function   :Send with spi
  * @parameters :data
  * @retvalue   :None
 ********************************************************************/ 
-static void SH1106_spi_transmit(uint8_t data)
+static void SH1106_SpiTransmit(uint8_t data)
 {
 	/*Wait until TXE is set*/
 	while(!(SPI1->SR & (SPI_SR_TXE)));
@@ -135,7 +135,7 @@ static void SH1106_spi_transmit(uint8_t data)
 }
 
 /*******************************************************************
- * @name       :static void SH1106_SendCmd(uint8_t cmd)
+ * @name       :SH1106_SendCmd
  * @date       :2024-01-03
  * @function   :Send command
  * @parameters :cmd
@@ -145,12 +145,12 @@ static void SH1106_SendCmd(uint8_t cmd)
 {
 	SH1106_DC_LOW; //Command mode
 	SH1106_CS_LOW;
-	SH1106_spi_transmit(cmd);
+	SH1106_SpiTransmit(cmd);
 	SH1106_CS_HIGH;
 }
 
 /*******************************************************************
- * @name       :SH1106_SendDoubleCmd(uint8_t cmd1, uint8_t cmd2)
+ * @name       :SH1106_SendDoubleCmd
  * @date       :2024-01-03
  * @function   :Send double command
  * @parameters :cmd1, cmd2
@@ -163,7 +163,7 @@ static void SH1106_SendDoubleCmd(uint8_t cmd1, uint8_t cmd2)
 }
 
 /*******************************************************************
- * @name       :static void SH1106_SendData(uint8_t dat)
+ * @name       :SH1106_SendData
  * @date       :2024-01-03
  * @function   :Send data
  * @parameters :dat
@@ -173,12 +173,12 @@ static void SH1106_SendData(uint8_t dat)
 {
 	SH1106_DC_HIGH; //Data mode
 	SH1106_CS_LOW;
-	SH1106_spi_transmit(dat);
+	SH1106_SpiTransmit(dat);
 	SH1106_CS_HIGH;
 }
 
 /*******************************************************************
- * @name       :void SH1106_SendBuffer(void)
+ * @name       :SH1106_SendBuffer
  * @date       :2024-01-03
  * @function   :Send buffer
  * @parameters :None
@@ -199,7 +199,7 @@ void SH1106_SendBuffer(void)
 }
 
 /*******************************************************************
- * @name       :static void SH1106_Reset(void)
+ * @name       :SH1106_Reset
  * @date       :2024-01-03
  * @function   :Reset OLED screen
  * @parameters :None
@@ -215,7 +215,7 @@ static void SH1106_Reset(void)
 }
 
 /*******************************************************************
- * @name       :void SH1106_SetPixel(uint8_t color, int16_t x, int16_t y)
+ * @name       :SH1106_SetPixel
  * @date       :2024-01-03
  * @function   :Set pixel in buffer
  * @parameters :color, x, y
@@ -234,7 +234,7 @@ void SH1106_SetPixel(uint8_t color, int16_t x, int16_t y)
 
 
 /*******************************************************************
- * @name       : drawCharacter
+ * @name       : SH1106_DrawCharacter
  * @date       : 2024-01-03
  * @function   : Draw a character at specified position
  * @parameters : color, x, y, font_buffer, dataSize, letterNumber, bytesPerColumns
@@ -304,7 +304,7 @@ void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, uint8_t *font_buffer,
 }
 
 /*******************************************************************
- * @name       :SH1106_DrawLine(uint8_t color, int16_t x0, int16_t y0, uint16_t x1, uint16_t y1)
+ * @name       :SH1106_DrawLine
  * @date       :2024-01-03
  * @function   :Draw a line
  * @parameters :color, x0, y0, x1, y1
@@ -339,7 +339,7 @@ void SH1106_DrawLine(uint8_t color, uint8_t x0, uint8_t y0, uint8_t x1, uint8_t 
 }
 
 /*******************************************************************
- * @name       :SH1106_DrawRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+ * @name       :SH1106_DrawRectangle
  * @date       :2024-01-03
  * @function   :Draw rectangle
  * @parameters :color, x, y, w, h
@@ -362,7 +362,7 @@ void SH1106_DrawRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uin
 }
 
 /*******************************************************************
- * @name       :SH1106_DrawFilledRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+ * @name       :SH1106_DrawFilledRectangle
  * @date       :2024-01-03
  * @function   :Draw rectangle
  * @parameters :color, x, y, w, h
@@ -385,7 +385,7 @@ void SH1106_DrawFilledRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t 
 }
 
 /*******************************************************************
- * @name       :SH1106_DrawCircle(uint8_t color, uint8_t x0, uint8_t y0, uint8_t radius)
+ * @name       :SH1106_DrawCircle
  * @date       :2024-01-03
  * @function   :Draw circle
  * @parameters :color, x0, y0, radius
@@ -425,7 +425,7 @@ void SH1106_DrawCircle(uint8_t color, uint8_t x0, uint8_t y0, uint8_t radius)
 }
 
 /*******************************************************************
- * @name       :SH1106_DrawFilledCircle(uint8_t color, int16_t x0, int16_t y0, int16_t r)
+ * @name       :SH1106_DrawFilledCircle
  * @date       :2024-01-03
  * @function   :Draw filled circle
  * @parameters :color, x0, y0, radius
@@ -466,7 +466,7 @@ void SH1106_DrawFilledCircle(uint8_t color, int16_t x0, int16_t y0, int16_t r)
 }
 
 /*******************************************************************
- * @name       :SH1106_ClearBuffer(void)
+ * @name       :SH1106_ClearBuffer
  * @date       :2024-01-03
  * @function   :Clear buffer
  * @parameters :None
@@ -479,7 +479,7 @@ void SH1106_ClearBuffer(void)
 }
 
 /*******************************************************************
- * @name       :SH1106_Init(void)
+ * @name       :SH1106_Init
  * @date       :2024-01-03
  * @function   :Init the screen
  * @parameters :None
@@ -487,7 +487,7 @@ void SH1106_ClearBuffer(void)
 ********************************************************************/ 
 void SH1106_Init(void)
 {
-	SH1106_spi_init();
+	SH1106_SpiTransmit();
 	TIM_Wait(200);
 	SH1106_Reset();
 	SH1106_SendCmd(DISPLAY_OFF);

@@ -232,12 +232,40 @@ void SH1106_SetPixel(uint8_t color, int16_t x, int16_t y)
 	else SH1106_Buffer[index] &= ~(1 << bitOffset);
 }
 
+
 /*******************************************************************
- * @name       :SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, uint8_t *font_buffer, const char *format, ...)
- * @date       :2024-01-03
- * @function   :Set pixel in buffer
- * @parameters :color, x, y, font, content
- * @retvalue   :None
+ * @name       : drawCharacter
+ * @date       : 2024-01-03
+ * @function   : Draw a character at specified position
+ * @parameters : color, x, y, font_buffer, dataSize, letterNumber, bytesPerColumns
+ * @retvalue   : None
+********************************************************************/
+static void SH1106_DrawCharacter(uint8_t color, int16_t x, int16_t y, uint8_t *font_buffer, uint8_t dataSize, uint8_t letterNumber, uint8_t bytesPerColumns) 
+{
+	uint8_t letterSize = font_buffer[4 + letterNumber * dataSize];
+	
+	for (int column = 0; column < letterSize; column++) 
+	{
+		for (int byteColumn = 0; byteColumn < bytesPerColumns; byteColumn++) 
+		{
+			uint8_t data = font_buffer[5 + letterNumber * dataSize + byteColumn + bytesPerColumns * column];
+			for (int bit = 0; bit < 8; bit++) 
+			{
+				uint8_t pixel = (data >> bit) & 1;
+				int16_t a = x + column;
+				int16_t b = y + (bit + 8 * byteColumn);
+				if (pixel) SH1106_SetPixel(color, a, b);
+			}
+		}
+	}
+}
+
+/*******************************************************************
+ * @name       : SH1106_FontPrint
+ * @date       : 2024-01-03
+ * @function   : Set pixel in buffer
+ * @parameters : color, x, y, font, content
+ * @retvalue   : None
 ********************************************************************/ 
 static const uint8_t SH1106_MIN_ASCII_VALUE = 31;
 static const uint8_t SH1106_MAX_ASCII_VALUE = 127;
@@ -245,44 +273,34 @@ static const uint8_t SH1106_ASCII_OFFSET = 32;
 
 void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, uint8_t *font_buffer, const char *format, ...) 
 {
-	uint8_t dataSize = font_buffer[0];
-	uint8_t length = font_buffer[1];
-	uint8_t height = font_buffer[2];
-	uint8_t bytesPerColumns = font_buffer[3];
+    uint8_t dataSize = font_buffer[0];
+    uint8_t length = font_buffer[1];
+    uint8_t height = font_buffer[2];
+    uint8_t bytesPerColumns = font_buffer[3];
 	
-	va_list args;
-	va_start(args, format);
-	char formatted_string[50]; // Taille en fonction de vos besoins
-	vsprintf(formatted_string, format, args);
-	va_end(args);
+    va_list args;
+    va_start(args, format);
+    char formatted_string[50]; // Taille en fonction de vos besoins
+    vsprintf(formatted_string, format, args);
+    va_end(args);
 	
-	const char *str = formatted_string;
+    const char *str = formatted_string;
 	
-	while (*str && x < WIDTH && y < HEIGHT) 
-	{
-		uint8_t currentChar = *str;
-		if (currentChar < SH1106_MIN_ASCII_VALUE || currentChar > SH1106_MAX_ASCII_VALUE) return;
+    while (*str && x < WIDTH && y < HEIGHT) 
+    {
+        uint8_t currentChar = *str;
+        if (currentChar < SH1106_MIN_ASCII_VALUE || currentChar > SH1106_MAX_ASCII_VALUE) return;
 		
-		uint8_t letterNumber = currentChar - SH1106_ASCII_OFFSET;
-		uint8_t letterSize = font_buffer[4 + letterNumber * dataSize];
+        uint8_t letterNumber = currentChar - SH1106_ASCII_OFFSET;
 		
-		for (int column = 0; column < letterSize; column++) 
-		{
-			for (int byteColumn = 0; byteColumn < bytesPerColumns; byteColumn++) 
-			{
-				uint8_t data = font_buffer[5 + letterNumber * dataSize + byteColumn + bytesPerColumns * column];
-				for (int bit = 0; bit < 8; bit++) 
-				{
-					uint8_t pixel = (data >> bit) & 1;
-					int16_t a = x + column;
-					int16_t b = y + (bit + 8 * byteColumn);
-					if (pixel) SH1106_SetPixel(color, a, b);
-				}
-			}
-		}
-		x += letterSize + (length / 10);
-		str++;
-	}
+        // Declare letterSize here
+        uint8_t letterSize = font_buffer[4 + letterNumber * dataSize];
+		
+        SH1106_DrawCharacter(color, x, y, font_buffer, dataSize, letterNumber, bytesPerColumns);
+		
+        x += letterSize + (length / 10);
+        str++;
+    }
 }
 
 /*******************************************************************

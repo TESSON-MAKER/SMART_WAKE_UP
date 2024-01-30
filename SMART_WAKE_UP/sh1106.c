@@ -242,14 +242,14 @@ void SH1106_SetPixel(uint8_t color, int16_t x, int16_t y)
 ********************************************************************/
 static void SH1106_DrawCharacter(uint8_t color, int16_t x, int16_t y, uint8_t *font_buffer, uint8_t dataSize, uint8_t letterNumber, uint8_t bytesPerColumns) 
 {
-	uint8_t indexLetterSize = 4 + letterNumber * dataSize;
+	uint16_t indexLetterSize = 4 + letterNumber * dataSize;
 	uint8_t letterSize = font_buffer[indexLetterSize];
 	
 	for (int column = 0; column < letterSize; column++) 
 	{
 		for (int byteColumn = 0; byteColumn < bytesPerColumns; byteColumn++) 
 		{
-			uint8_t index = 5 + letterNumber * dataSize + byteColumn + bytesPerColumns * column;
+			uint16_t index = 5 + letterNumber * dataSize + byteColumn + bytesPerColumns * column;
 			uint8_t data = font_buffer[index];
 			for (int bit = 0; bit < 8; bit++) 
 			{

@@ -242,13 +242,15 @@ void SH1106_SetPixel(uint8_t color, int16_t x, int16_t y)
 ********************************************************************/
 static void SH1106_DrawCharacter(uint8_t color, int16_t x, int16_t y, uint8_t *font_buffer, uint8_t dataSize, uint8_t letterNumber, uint8_t bytesPerColumns) 
 {
-	uint8_t letterSize = font_buffer[4 + letterNumber * dataSize];
+	uint8_t indexLetterSize = 4 + letterNumber * dataSize;
+	uint8_t letterSize = font_buffer[indexLetterSize];
 	
 	for (int column = 0; column < letterSize; column++) 
 	{
 		for (int byteColumn = 0; byteColumn < bytesPerColumns; byteColumn++) 
 		{
-			uint8_t data = font_buffer[5 + letterNumber * dataSize + byteColumn + bytesPerColumns * column];
+			uint8_t index = 5 + letterNumber * dataSize + byteColumn + bytesPerColumns * column;
+			uint8_t data = font_buffer[index];
 			for (int bit = 0; bit < 8; bit++) 
 			{
 				uint8_t pixel = (data >> bit) & 1;
@@ -294,7 +296,8 @@ void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, uint8_t *font_buffer,
         uint8_t letterNumber = currentChar - SH1106_ASCII_OFFSET;
 		
         // Declare letterSize here
-        uint8_t letterSize = font_buffer[4 + letterNumber * dataSize];
+        uint8_t indexLetterSize = 4 + letterNumber * dataSize;
+	uint8_t letterSize = font_buffer[indexLetterSize];
 		
         SH1106_DrawCharacter(color, x, y, font_buffer, dataSize, letterNumber, bytesPerColumns);
 		

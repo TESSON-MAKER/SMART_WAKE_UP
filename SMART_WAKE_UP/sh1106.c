@@ -275,35 +275,35 @@ static const uint8_t SH1106_ASCII_OFFSET = 32;
 
 void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, uint8_t *font_buffer, const char *format, ...) 
 {
-    uint8_t dataSize = font_buffer[0];
-    uint8_t length = font_buffer[1];
-    uint8_t height = font_buffer[2];
-    uint8_t bytesPerColumns = font_buffer[3];
+	uint8_t dataSize = font_buffer[0];
+	uint8_t length = font_buffer[1];
+	uint8_t height = font_buffer[2];
+	uint8_t bytesPerColumns = font_buffer[3];
 	
-    va_list args;
-    va_start(args, format);
-    char formatted_string[50]; // Taille en fonction de vos besoins
-    vsprintf(formatted_string, format, args);
-    va_end(args);
+	va_list args;
+	va_start(args, format);
+	char formatted_string[50]; // Taille en fonction de vos besoins
+	vsprintf(formatted_string, format, args);
+	va_end(args);
 	
-    const char *str = formatted_string;
+	const char *str = formatted_string;
 	
-    while (*str && x < WIDTH && y < HEIGHT) 
-    {
-        uint8_t currentChar = *str;
-        if (currentChar < SH1106_MIN_ASCII_VALUE || currentChar > SH1106_MAX_ASCII_VALUE) return;
-		
-        uint8_t letterNumber = currentChar - SH1106_ASCII_OFFSET;
-		
-        // Declare letterSize here
-        uint8_t indexLetterSize = 4 + letterNumber * dataSize;
-	uint8_t letterSize = font_buffer[indexLetterSize];
-		
-        SH1106_DrawCharacter(color, x, y, font_buffer, dataSize, letterNumber, bytesPerColumns);
-		
-        x += letterSize + (length / 10);
-        str++;
-    }
+	while (*str && x < WIDTH && y < HEIGHT) 
+	{
+		uint8_t currentChar = *str;
+		if (currentChar < SH1106_MIN_ASCII_VALUE || currentChar > SH1106_MAX_ASCII_VALUE) return;
+			
+		uint8_t letterNumber = currentChar - SH1106_ASCII_OFFSET;
+			
+		// Declare letterSize here
+		uint8_t indexLetterSize = 4 + letterNumber * dataSize;
+		uint8_t letterSize = font_buffer[indexLetterSize];
+			
+		SH1106_DrawCharacter(color, x, y, font_buffer, dataSize, letterNumber, bytesPerColumns);
+			
+		x += letterSize + (length / 10);
+		str++;
+	}
 }
 
 /*******************************************************************

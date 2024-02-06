@@ -125,6 +125,6 @@ void TIM2_IRQHandler(void)
 		TIM2->SR &= ~TIM_SR_UIF; // Clear counter overflow flag
 
 		BUTTON_TopState = (GPIOD->IDR & GPIO_IDR_ID11) ? 1 : 0;
-        BUTTON_BottomState = (GPIOE->IDR & GPIO_IDR_ID2) ? 1 : 0;
+  BUTTON_BottomState = (GPIOE->IDR & GPIO_IDR_ID2) ? 1 : 0;
 	}
 }

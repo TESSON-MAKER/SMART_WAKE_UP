@@ -1,25 +1,23 @@
-// buttons.h
+
 
 #ifndef BUTTONS_H
 #define BUTTONS_H
 
 #include "stm32f7xx.h" 
 
-typedef struct {
-	GPIO_TypeDef *port;
-	uint16_t pin;
-	int lastButtonState;
-} Button;
-
-extern Button buttonTop;
-extern Button buttonBottom;
-extern Button buttonRight;
-extern Button buttonLeft;
-extern Button buttonReturn;
-extern Button buttonReset;
+extern volatile uint8_t BUTTON_TopState; 
+extern volatile uint8_t BUTTON_BottomState;
+extern volatile uint8_t BUTTON_RightState;
+extern volatile uint8_t BUTTON_LeftState;
+extern volatile uint8_t BUTTON_Switch;
 
 void BUTTONS_Init(void);
-uint8_t BUTTONS_Click(Button *button);
-uint8_t BUTTONS_Switch(void);
+void EXTI15_10_IRQHandler(void);
+void EXTI2_IRQHandler(void);
+void EXTI4_IRQHandler(void);
+void EXTI3_IRQHandler(void);
+void EXTI0_IRQHandler(void);
+void BUTTONS_KeyState(void);
+void TIM2_IRQHandler(void);
 
 #endif  // BUTTONS_H

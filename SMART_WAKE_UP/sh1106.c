@@ -116,20 +116,20 @@ static void SH1106_SpiInit(void)
 ********************************************************************/ 
 static void SH1106_Spi_Transmit(uint8_t data)
 {
-	/*Wait until TXE is set*/
+	//Wait until TXE is set
 	while(!(SPI1->SR & (SPI_SR_TXE)));
 
-	/*Write the data to the data register*/
+	//Write the data to the data register
 	*(volatile uint8_t*) & SPI1->DR = data;
 			
-	/*Wait until TXE is set*/ 
+	//Wait until TXE is set
 	while(!(SPI1->SR & (SPI_SR_TXE)));
 
 	
-	/*Wait for BUSY flag to reset*/
+	//Wait for BUSY flag to reset
 	while((SPI1->SR & (SPI_SR_BSY)));
 
-	/*Clear OVR flag*/
+	//Clear OVR flag
 	(void)SPI1->DR;
 	(void)SPI1->SR;
 }
@@ -294,8 +294,8 @@ void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, uint8_t *font_buffer,
 		
         uint8_t letterNumber = currentChar - SH1106_ASCII_OFFSET;
 		
-        // Declare letterSize here
-        uint8_t letterSize = font_buffer[4 + letterNumber * dataSize];
+        uint16_t index_LetterSize = 4 + letterNumber * dataSize;
+		uint8_t letterSize = font_buffer[index_LetterSize];
 		
         SH1106_DrawCharacter(color, x, y, font_buffer, dataSize, letterNumber, bytesPerColumns);
 		

@@ -102,71 +102,79 @@ static void handling(uint8_t* data, const char* title, int max, int min)
 
 static void handlingDay()
 {
-	uint8_t isLeapYear = (DS3231_Year % 4 == 0 && DS3231_Year % 100 != 0) || (DS3231_Year % 400 == 0);
+	uint8_t isLeapYear = (DS3231_Year %4 == 0 && DS3231_Year %100 != 0) || (DS3231_Year %400 == 0);
 
 	if (BUTTON_TopState) 
 	{
 		DS3231_DayMonth++;
 		BUTTON_TopState = 0;
 	}
-	else if (BUTTON_BottomState) 
+	if (BUTTON_BottomState) 
 	{
 		DS3231_DayMonth--;
 		BUTTON_BottomState = 0;
 	}
 
-	const uint8_t daysInMonth[] = {31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-	
-	if (DS3231_DayMonth > daysInMonth[DS3231_Month - 1]) DS3231_DayMonth = 0;
-	else if (DS3231_DayMonth < 1) DS3231_DayMonth = daysInMonth[DS3231_Month - 1];
+	if ((DS3231_Month == 4 || DS3231_Month == 6 || DS3231_Month == 9 || DS3231_Month == 11) && (DS3231_DayMonth > 30)) DS3231_DayMonth=0;
+	if ((DS3231_Month == 4 || DS3231_Month == 6 || DS3231_Month == 9 || DS3231_Month == 11) && (DS3231_DayMonth < 0)) DS3231_DayMonth=30;
+	if ((DS3231_Month == 1 || DS3231_Month == 3 || DS3231_Month == 5 || DS3231_Month == 7 || DS3231_Month == 9 || DS3231_Month == 11) && (DS3231_DayMonth > 31)) DS3231_DayMonth=0;
+	if ((DS3231_Month == 1 || DS3231_Month == 3 || DS3231_Month == 5 || DS3231_Month == 7 || DS3231_Month == 9 || DS3231_Month == 11) && (DS3231_DayMonth < 0)) DS3231_DayMonth=31;
+	if ((DS3231_Month == 2) && (DS3231_DayMonth > 28)) DS3231_DayMonth=0;
+	if ((DS3231_Month == 2) && (DS3231_DayMonth < 0)) DS3231_DayMonth=28;
+	if (DS3231_Month == 2 && isLeapYear && DS3231_DayMonth > 29) DS3231_DayMonth = 0;
+	if (DS3231_Month == 2 && !isLeapYear && DS3231_DayMonth > 28) DS3231_DayMonth = 0;
+	if (DS3231_Month == 2 && isLeapYear && DS3231_DayMonth < 0) DS3231_DayMonth = 29;
+	if (DS3231_Month == 2 && !isLeapYear && DS3231_DayMonth < 0) DS3231_DayMonth = 28;
 
 	SH1106_FontPrint(1, 0, 13, Arial12x12, "Setting day : %d", DS3231_DayMonth);
 }
 
 static void handlingMonth()
 {
-	uint8_t isLeapYear = (DS3231_Year % 4 == 0 && DS3231_Year % 100 != 0) || (DS3231_Year % 400 == 0);
+	uint8_t isLeapYear = (DS3231_Year %4 == 0 && DS3231_Year %100 != 0) || (DS3231_Year %400 == 0);
 
 	if (BUTTON_TopState) 
 	{
 		DS3231_Month++;
 		BUTTON_TopState = 0;
 	}
-	else if (BUTTON_BottomState) 
+	if (BUTTON_BottomState) 
 	{
 		DS3231_Month--;
 		BUTTON_BottomState = 0;
 	}
 
-	if (DS3231_Month > 12) DS3231_Month = 1;
-	else if (DS3231_Month < 1) DS3231_Month = 12;
+	if (DS3231_Month>12) DS3231_Month=1;
+	if (DS3231_Month<1) DS3231_Month=12;
 
-	const uint8_t daysInMonth[] = {31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-	if (DS3231_DayMonth > daysInMonth[DS3231_Month - 1]) DS3231_DayMonth = daysInMonth[DS3231_Month - 1];
+	if ((DS3231_Month == 4 || DS3231_Month == 6 || DS3231_Month == 9 || DS3231_Month == 11) && (DS3231_DayMonth > 30)) DS3231_DayMonth=30;  //Cas ou dans 1 mois, il n'y a que 30 jours
+
+	if (DS3231_Month == 2 && isLeapYear && DS3231_DayMonth > 29) DS3231_DayMonth = 29;                                 //Cas de Fevrier dans les annees bissextiles (29 jours)
+	if (DS3231_Month == 2 && !isLeapYear && DS3231_DayMonth > 28) DS3231_DayMonth = 28;                                //Cas de Fevrier hors annees bissextiles (28 jours)
 
 	SH1106_FontPrint(1, 0, 13, Arial12x12, "Setting month : %d", DS3231_Month);
 }
 
 static void handlingYear()
 {
-	uint8_t isLeapYear = (DS3231_Year % 4 == 0 && DS3231_Year % 100 != 0) || (DS3231_Year % 400 == 0);
+	uint8_t isLeapYear = (DS3231_Year %4 == 0 && DS3231_Year %100 != 0) || (DS3231_Year %400 == 0);
 
 	if (BUTTON_TopState) 
 	{
 		DS3231_Year++;
 		BUTTON_TopState = 0;
 	}
-	else if (BUTTON_BottomState) 
+	if (BUTTON_BottomState) 
 	{
 		DS3231_Year--;
 		BUTTON_BottomState = 0;
 	}
 
-	if (DS3231_Year > 99) DS3231_Year = 0;
-	else if (DS3231_Year < 0) DS3231_Year = 99;
+	if (DS3231_Year>99) DS3231_Year=0;
+	if (DS3231_Year<0) DS3231_Year=99;
 
-	const uint8_t daysInMonth[] = {31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-	if (DS3231_DayMonth > daysInMonth[DS3231_Month - 1]) DS3231_DayMonth = daysInMonth[DS3231_Month - 1];
+	if (DS3231_Month == 2 && isLeapYear && DS3231_DayMonth > 29) DS3231_DayMonth = 29;           // Cas de Fevrier dans les annees bissextiles (29 jours)
+	if (DS3231_Month == 2 && !isLeapYear && DS3231_DayMonth > 28) DS3231_DayMonth = 28;          // Cas de Fevrier hors annees bissextiles (28 jours)
 
 	SH1106_FontPrint(1, 0, 13, Arial12x12, "Setting year : %d", DS3231_Year);
 }

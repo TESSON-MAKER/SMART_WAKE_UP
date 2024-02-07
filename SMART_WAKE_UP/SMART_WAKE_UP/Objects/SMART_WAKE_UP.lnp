@@ -1,0 +1,16 @@
+--cpu Cortex-M7.fp.dp
+".\objects\gpio.o"
+".\objects\main.o"
+".\objects\servo.o"
+".\objects\tim.o"
+".\objects\urm37.o"
+".\objects\usart.o"
+".\objects\st7920.o"
+".\objects\ds3231.o"
+".\objects\sh1106.o"
+".\objects\buttons.o"
+".\objects\startup_stm32f767xx.o"
+".\objects\system_stm32f7xx.o"
+--ro-base 0x08000000 --entry 0x08000000 --rw-base 0x20020000 --entry Reset_Handler --first __Vectors --strict --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\Listings\SMART_WAKE_UP.map" -o .\Objects\SMART_WAKE_UP.axf

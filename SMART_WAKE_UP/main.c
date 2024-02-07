@@ -10,14 +10,14 @@ const char *months[] = {"NA", "January", "February", "March", "April", "May", "J
 
 
 
-static uint8_t DS3231_Second = 0;
-static uint8_t DS3231_Minute = 0;
-static uint8_t DS3231_Hour = 0;
-static uint8_t DS3231_DayWeek = 1;
-static uint8_t DS3231_DayMonth = 1;
-static uint8_t DS3231_Month = 1;
-static uint8_t DS3231_Year = 0;
-static uint8_t DS3231_Century = 0;
+static int8_t DS3231_Second = 0;
+static int8_t DS3231_Minute = 0;
+static int8_t DS3231_Hour = 0;
+static int8_t DS3231_DayWeek = 1;
+static int8_t DS3231_DayMonth = 1;
+static int8_t DS3231_Month = 1;
+static int8_t DS3231_Year = 0;
+static int8_t DS3231_Century = 0;
 
 uint8_t update = 0;
 int move = 0;
@@ -81,7 +81,7 @@ static void MAIN_DisplayDate(void)
 	SH1106_DrawLine(1, 0, 12, 128, 12);
 }
 
-static void handling(uint8_t* data, const char* title, int max, int min)
+static void handling(int8_t* data, const char* title, int max, int min)
 {
 	if (BUTTON_TopState) 
 	{

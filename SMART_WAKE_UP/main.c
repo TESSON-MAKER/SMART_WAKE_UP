@@ -8,8 +8,6 @@
 const char *days[] = {"NA", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 const char *months[] = {"NA", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
-
-
 static uint8_t DS3231_Second = 0;
 static uint8_t DS3231_Minute = 0;
 static uint8_t DS3231_Hour = 0;

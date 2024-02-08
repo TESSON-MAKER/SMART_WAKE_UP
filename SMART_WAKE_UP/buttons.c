@@ -183,6 +183,7 @@ void TIM2_IRQHandler(void)
 				TIM2->CR1 |= TIM_CR1_CEN;
 				begin = 0;
 			}
+			else TIM2->CNT = 0;
 		}
 		else if ((GPIOE->IDR & GPIO_IDR_ID2) && !(GPIOD->IDR & GPIO_IDR_ID11))
 		{
@@ -196,6 +197,7 @@ void TIM2_IRQHandler(void)
 				TIM2->CR1 |= TIM_CR1_CEN;
 				begin = 0;
 			}
+			else TIM2->CNT = 0;
 		}
 		else
 		{

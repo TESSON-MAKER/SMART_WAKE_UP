@@ -8,8 +8,9 @@ volatile uint8_t BUTTON_LeftState = 0;
 volatile uint8_t BUTTON_Switch = 0;
 
 // Delay values for button press detection
-static uint16_t PushDelay = 1000;
+static uint16_t PushDelay = 2000;
 static uint16_t IncrementDelay = 100;
+static uint8_t begin = 0;
 
 /*******************************************************************
  * @name       :BUTTONS_Init
@@ -20,6 +21,16 @@ static uint16_t IncrementDelay = 100;
 ********************************************************************/ 
 void BUTTONS_Init(void)
 {
+	// Initialize TIM2 for button repetition
+	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; // Enable TIM2
+	TIM2->PSC = 16000 - 1; // Set prescaler
+	TIM2->ARR = PushDelay - 1; // Set auto-reload value
+	TIM2->DIER |= TIM_DIER_UIE; // Enable update interrupt
+	
+	// Set interrupt priorities and enable TIM2 in NVIC
+	NVIC_SetPriority(TIM2_IRQn, 4); // Set TIM2 interrupt priority
+	NVIC_EnableIRQ(TIM2_IRQn); // Enable TIM2 interrupt in NVIC
+
 	// Enable clock for EXTI unit
 	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
 
@@ -64,17 +75,6 @@ void BUTTONS_Init(void)
 	NVIC_EnableIRQ(EXTI4_IRQn);
 	NVIC_SetPriority(EXTI3_IRQn, 3);
 	NVIC_EnableIRQ(EXTI3_IRQn);
-
-	// Initialize TIM2 for button repetition
-	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; // Enable TIM2
-	TIM2->PSC = 16000 - 1; // Set prescaler
-	TIM2->ARR = PushDelay - 1; // Set auto-reload value
-	TIM2->DIER |= TIM_DIER_UIE; // Enable update interrupt
-	TIM2->CR1 |= TIM_CR1_CEN; // Activate the timer
-
-	// Set interrupt priorities and enable TIM2 in NVIC
-	NVIC_SetPriority(TIM2_IRQn, 4); // Set TIM2 interrupt priority
-	NVIC_EnableIRQ(TIM2_IRQn); // Enable TIM2 interrupt in NVIC
 }
 
 /*******************************************************************
@@ -88,9 +88,10 @@ void EXTI15_10_IRQHandler(void)
 {
 	if (EXTI->PR & EXTI_PR_PR11)
 	{
-		TIM2->CNT = 0; // Reset TIM2 counter
+		TIM2->CR1 |= TIM_CR1_CEN; // Activate the timer
 		EXTI->PR |= EXTI_PR_PR11; // Clear interrupt flag
 		BUTTON_TopState = 1; // Set Top Button state
+		begin = 1;
 	}
 }
 
@@ -105,7 +106,8 @@ void EXTI2_IRQHandler(void)
 {
 	if (EXTI->PR & EXTI_PR_PR2)
 	{
-		TIM2->CNT = 0; // Reset TIM2 counter
+		begin = 1;
+		TIM2->CR1 |= TIM_CR1_CEN; // Activate the timer
 		EXTI->PR |= EXTI_PR_PR2; // Clear interrupt flag
 		BUTTON_BottomState = 1; // Set Right Button state
 	}
@@ -173,21 +175,35 @@ void TIM2_IRQHandler(void)
 		{
 			// Top button pressed
 			BUTTON_TopState = 1;
-			TIM2->ARR = IncrementDelay - 1; // Set auto-reload value for repetition
+			
+			if (begin) 
+			{
+				TIM2->CR1 &= ~TIM_CR1_CEN;
+				TIM2->ARR = IncrementDelay - 1; // Set auto-reload value for repetition
+				TIM2->CR1 |= TIM_CR1_CEN;
+				begin = 0;
+			}
 		}
 		else if ((GPIOE->IDR & GPIO_IDR_ID2) && !(GPIOD->IDR & GPIO_IDR_ID11))
 		{
 			// Bottom button pressed
 			BUTTON_BottomState = 1;
-			TIM2->ARR = IncrementDelay - 1; // Set auto-reload value for repetition
+			
+			if (begin) 
+			{
+				TIM2->CR1 &= ~TIM_CR1_CEN;
+				TIM2->ARR = IncrementDelay - 1; // Set auto-reload value for repetition
+				TIM2->CR1 |= TIM_CR1_CEN;
+				begin = 0;
+			}
 		}
 		else
 		{
 			// None or all buttons pressed
+			TIM2->CR1 &= ~TIM_CR1_CEN; // Deactivate the timer
 			TIM2->ARR = PushDelay - 1; // Set auto-reload value for repetition
 			BUTTON_TopState = 0;
 			BUTTON_BottomState = 0;
 		}
-		TIM2->CNT = 0; // Reset TIM2 counter for repetition
 	}
 }

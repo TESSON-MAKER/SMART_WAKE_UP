@@ -70,13 +70,12 @@ void BUTTONS_Init(void)
 
 	// Initialize TIM2 for button repetition
 	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; // Enable TIM2
-
 	TIM2->PSC = 16000 - 1; // Set prescaler
 	TIM2->ARR = PushDelay - 1; // Set auto-reload value
-
 	TIM2->DIER |= TIM_DIER_UIE; // Enable update interrupt
 	TIM2->CR1 |= TIM_CR1_CEN; // Activate the timer
 
+	// Set interrupt priorities and enable TIM2 in NVIC
 	NVIC_SetPriority(TIM2_IRQn, 4); // Set TIM2 interrupt priority
 	NVIC_EnableIRQ(TIM2_IRQn); // Enable TIM2 interrupt in NVIC
 }

@@ -14,7 +14,13 @@ static uint16_t IncrementDelay = 100;
 // Function prototype for initializing TIM2
 static void BUTTONS_TIM2_Init(void);
 
-// Initialize GPIO and interrupts for buttons
+/*******************************************************************
+ * @name       :BUTTONS_Init
+ * @date       :2024-02-08
+ * @function   :Initialize GPIO and interrupts for buttons
+ * @parameters :None
+ * @retvalue   :None
+********************************************************************/ 
 void BUTTONS_Init(void)
 {
 	// Enable clock for EXTI unit
@@ -63,12 +69,6 @@ void BUTTONS_Init(void)
 	NVIC_EnableIRQ(EXTI3_IRQn);
 
 	// Initialize TIM2 for button repetition
-	BUTTONS_TIM2_Init();
-}
-
-// Initialize TIM2 for button repetition
-static void BUTTONS_TIM2_Init(void)
-{
 	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; // Enable TIM2
 
 	TIM2->PSC = 16000 - 1; // Set prescaler
@@ -81,7 +81,13 @@ static void BUTTONS_TIM2_Init(void)
 	NVIC_EnableIRQ(TIM2_IRQn); // Enable TIM2 interrupt in NVIC
 }
 
-// EXTI interrupt handler for Top Button
+/*******************************************************************
+ * @name       :EXTI15_10_IRQHandler
+ * @date       :2024-02-08
+ * @function   :EXTI interrupt handler for Top Button
+ * @parameters :None
+ * @retvalue   :None
+********************************************************************/ 
 void EXTI15_10_IRQHandler(void)
 {
 	if (EXTI->PR & EXTI_PR_PR11)
@@ -92,7 +98,13 @@ void EXTI15_10_IRQHandler(void)
 	}
 }
 
-// EXTI interrupt handler for Right Button
+/*******************************************************************
+ * @name       :EXTI2_IRQHandler
+ * @date       :2024-02-08
+ * @function   :EXTI interrupt handler for Bottom Button
+ * @parameters :None
+ * @retvalue   :None
+********************************************************************/ 
 void EXTI2_IRQHandler(void)
 {
 	if (EXTI->PR & EXTI_PR_PR2)
@@ -103,7 +115,14 @@ void EXTI2_IRQHandler(void)
 	}
 }
 
-// EXTI interrupt handler for Bottom Button
+
+/*******************************************************************
+ * @name       :EXTI4_IRQHandler
+ * @date       :2024-02-08
+ * @function   :EXTI interrupt handler for Right Button
+ * @parameters :None
+ * @retvalue   :None
+********************************************************************/ 
 void EXTI4_IRQHandler(void)
 {
 	if (EXTI->PR & EXTI_PR_PR4)
@@ -113,7 +132,13 @@ void EXTI4_IRQHandler(void)
 	}
 }
 
-// EXTI interrupt handler for Left Button
+/*******************************************************************
+ * @name       :EXTI3_IRQHandler
+ * @date       :2024-02-08
+ * @function   :EXTI interrupt handler for Left Button
+ * @parameters :None
+ * @retvalue   :None
+********************************************************************/ 
 void EXTI3_IRQHandler(void)
 {
 	if (EXTI->PR & EXTI_PR_PR3)
@@ -123,13 +148,25 @@ void EXTI3_IRQHandler(void)
 	}
 }
 
-// Read state of the Switch
+/*******************************************************************
+ * @name       :BUTTONS_KeyState
+ * @date       :2024-02-08
+ * @function   :Switch between Display and Setting
+ * @parameters :None
+ * @retvalue   :None
+********************************************************************/ 
 void BUTTONS_KeyState(void)
 {
 	BUTTON_Switch = (GPIOE->IDR & GPIO_IDR_ID0) ? 1 : 0;
 }
 
-// TIM2 interrupt handler for button repetition and hold detection
+/*******************************************************************
+ * @name       :TIM2_IRQHandler
+ * @date       :2024-02-08
+ * @function   :TIM2 interrupt handler for button repetition and hold detection
+ * @parameters :None
+ * @retvalue   :None
+********************************************************************/
 void TIM2_IRQHandler(void)
 {
 	if (TIM2->SR & TIM_SR_UIF) // Check if update interrupt flag is set

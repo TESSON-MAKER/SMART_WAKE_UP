@@ -11,9 +11,6 @@ volatile uint8_t BUTTON_Switch = 0;
 static uint16_t PushDelay = 1000;
 static uint16_t IncrementDelay = 100;
 
-// Function prototype for initializing TIM2
-static void BUTTONS_TIM2_Init(void);
-
 /*******************************************************************
  * @name       :BUTTONS_Init
  * @date       :2024-02-08

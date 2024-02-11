@@ -8,8 +8,6 @@
 const char *days[] = {"NA", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 const char *months[] = {"NA", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
-
-
 static int8_t DS3231_Second = 0;
 static int8_t DS3231_Minute = 0;
 static int8_t DS3231_Hour = 0;
@@ -19,7 +17,9 @@ static int8_t DS3231_Month = 1;
 static int8_t DS3231_Year = 0;
 static int8_t DS3231_Century = 0;
 
-uint8_t update = 0;
+static uint8_t UpdateToDisplay = 0;
+static uint8_t UpdateToSetting = 0;
+
 int move = 0;
 static uint8_t state = 0;
 
@@ -47,7 +47,6 @@ int main(void)
 		switch (BUTTON_Switch)
 		{
 			case 0:
-				MAIN_Initialization();
 				MAIN_DisplayDate();
 				break;
 			case 1:
@@ -62,6 +61,22 @@ int main(void)
 
 static void MAIN_DisplayDate(void)
 {
+	UpdateToSetting = 1;
+	
+	if (UpdateToDisplay)
+	{
+		uint8_t dataS[7] = {DS3231_DEC_BCD(DS3231_Second), DS3231_DEC_BCD(DS3231_Minute), DS3231_DEC_BCD(DS3231_Hour), DS3231_DEC_BCD(DS3231_DayWeek), DS3231_DEC_BCD(DS3231_DayMonth), DS3231_DEC_BCD(DS3231_Month), DS3231_DEC_BCD(DS3231_Year)};
+		DS3231_WriteMemory(0x68, 0x00, dataS, 7);
+		
+		BUTTON_TopState = 0;
+		BUTTON_BottomState = 0;
+		BUTTON_RightState = 0;
+		BUTTON_LeftState = 0;
+		
+		move = 0;
+		UpdateToDisplay = 0;
+	}
+	
 	uint8_t data[7] = {0};
 	DS3231_Read(0x68,0x0,data,7);
 	DS3231_Second = DS3231_BCD_DEC(data[0] & 0x7F);
@@ -181,7 +196,17 @@ static void handlingYear()
 
 static void MAIN_Settings(void)
 {
-	update = 1;
+	UpdateToDisplay = 1;
+	
+	if (UpdateToSetting)
+	{
+		BUTTON_TopState = 0;
+		BUTTON_BottomState = 0;
+		BUTTON_RightState = 0;
+		BUTTON_LeftState = 0;
+		
+		UpdateToSetting = 0;
+	}
 
 	if (BUTTON_RightState) 
 	{
@@ -220,17 +245,5 @@ static void MAIN_Settings(void)
 		case 6:
 			handlingYear();
 			break;
-	}
-}
-
-static void MAIN_Initialization(void)
-{
-	move = 0;
-
-	if (update)
-	{
-		uint8_t dataS[7] = {DS3231_DEC_BCD(DS3231_Second), DS3231_DEC_BCD(DS3231_Minute), DS3231_DEC_BCD(DS3231_Hour), DS3231_DEC_BCD(DS3231_DayWeek), DS3231_DEC_BCD(DS3231_DayMonth), DS3231_DEC_BCD(DS3231_Month), DS3231_DEC_BCD(DS3231_Year)};
-		DS3231_WriteMemory(0x68, 0x00, dataS, 7);
-		update = 0;
 	}
 }

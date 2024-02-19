@@ -8,24 +8,21 @@
 const char *days[] = {"NA", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 const char *months[] = {"NA", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
-static int8_t DS3231_Second = 0;
-static int8_t DS3231_Minute = 0;
-static int8_t DS3231_Hour = 0;
-static int8_t DS3231_DayWeek = 1;
-static int8_t DS3231_DayMonth = 1;
-static int8_t DS3231_Month = 1;
-static int8_t DS3231_Year = 0;
-static int8_t DS3231_Century = 0;
-
-static uint8_t UpdateToDisplay = 0;
-static uint8_t UpdateToSetting = 0;
-
+static int8_t DS3231_Second = 0, DS3231_Minute = 0, DS3231_Hour = 0, DS3231_DayWeek = 1, DS3231_DayMonth = 1, DS3231_Month = 1, DS3231_Year = 0, DS3231_Century = 0;
+static int8_t Setting_Second = 0, Setting_Minute = 0, Setting_Hour = 0, Setting_DayWeek = 0, Setting_DayMonth = 0, Setting_Month = 0, Setting_Year = 0, Setting_Century = 0;
+static uint8_t UpdateToDisplay = 0, UpdateToSetting = 0;
 int move = 0;
 static uint8_t state = 0;
 
 static void MAIN_DisplayDate(void);
 static void MAIN_Settings(void);
-static void MAIN_Initialization(void);
+static void DrawTab(uint8_t x, uint8_t y, const char *format, uint8_t value);
+static void DrawFilledTab(uint8_t x, uint8_t y, const char *format, uint8_t value);
+static void Select(uint8_t state, uint8_t x, uint8_t y, const char *format, uint8_t value);
+static void handling(int8_t* data, int max, int min);
+static void handlingDay(void);
+static void handlingMonth(void);
+static void handlingYear(void);
 
 int main(void) 
 {
@@ -35,9 +32,6 @@ int main(void)
 	GPIO_PinMode(GPIOB, 7, OUTPUT);
 	SH1106_ClearBuffer();
 	SH1106_SendBuffer();
-	
-	/*uint8_t dataT[7] = {DS3231_DEC_BCD(0), DS3231_DEC_BCD(35), DS3231_DEC_BCD(20), DS3231_DEC_BCD(06), DS3231_DEC_BCD(03), DS3231_DEC_BCD(02), DS3231_DEC_BCD(24)};
-	DS3231_WriteMemory(0x68, 0x00, dataT, 7);*/
 	
 	while (1) 
 	{
@@ -56,7 +50,6 @@ int main(void)
 		state ^= 1;
 		SH1106_SendBuffer();
 	}
-	
 }
 
 static void MAIN_DisplayDate(void)
@@ -96,7 +89,7 @@ static void MAIN_DisplayDate(void)
 	SH1106_DrawLine(1, 0, 12, 128, 12);
 }
 
-static void handling(int8_t* data, const char* title, int max, int min)
+static void handling(int8_t* data, int max, int min)
 {
 	if (BUTTON_TopState) 
 	{
@@ -111,8 +104,6 @@ static void handling(int8_t* data, const char* title, int max, int min)
 
 	if (*data > max) *data = min;
 	if (*data < min) *data = max;
-
-	SH1106_FontPrint(1, 0, 13, Arial12x12, "Setting %s : %d", title, *data);
 }
 
 static void handlingDay()
@@ -140,8 +131,6 @@ static void handlingDay()
 	if (DS3231_Month == 2 && !isLeapYear && DS3231_DayMonth > 28) DS3231_DayMonth = 0;
 	if (DS3231_Month == 2 && isLeapYear && DS3231_DayMonth < 0) DS3231_DayMonth = 29;
 	if (DS3231_Month == 2 && !isLeapYear && DS3231_DayMonth < 0) DS3231_DayMonth = 28;
-
-	SH1106_FontPrint(1, 0, 13, Arial12x12, "Setting day : %d", DS3231_DayMonth);
 }
 
 static void handlingMonth()
@@ -166,8 +155,6 @@ static void handlingMonth()
 
 	if (DS3231_Month == 2 && isLeapYear && DS3231_DayMonth > 29) DS3231_DayMonth = 29;                                 //Cas de Fevrier dans les annees bissextiles (29 jours)
 	if (DS3231_Month == 2 && !isLeapYear && DS3231_DayMonth > 28) DS3231_DayMonth = 28;                                //Cas de Fevrier hors annees bissextiles (28 jours)
-
-	SH1106_FontPrint(1, 0, 13, Arial12x12, "Setting month : %d", DS3231_Month);
 }
 
 static void handlingYear()
@@ -190,8 +177,6 @@ static void handlingYear()
 
 	if (DS3231_Month == 2 && isLeapYear && DS3231_DayMonth > 29) DS3231_DayMonth = 29;           // Cas de Fevrier dans les annees bissextiles (29 jours)
 	if (DS3231_Month == 2 && !isLeapYear && DS3231_DayMonth > 28) DS3231_DayMonth = 28;          // Cas de Fevrier hors annees bissextiles (28 jours)
-
-	SH1106_FontPrint(1, 0, 13, Arial12x12, "Setting year : %d", DS3231_Year);
 }
 
 static void MAIN_Settings(void)
@@ -225,25 +210,102 @@ static void MAIN_Settings(void)
 	switch (move)
 	{
 		case 0:
-			handling(&DS3231_Second, "sec", 59, 0);
+			Setting_Second = 1;
+			Setting_Minute = 0;
+			Setting_Hour = 0;
+			Setting_DayWeek = 0;
+			Setting_DayMonth = 0;
+			Setting_Month = 0;
+			Setting_Year = 0;
+			handling(&DS3231_Second, 59, 0);
 			break;
 		case 1:
-			handling(&DS3231_Minute, "min", 59, 0);
+			Setting_Second = 0;
+			Setting_Minute = 1;
+			Setting_Hour = 0;
+			Setting_DayWeek = 0;
+			Setting_DayMonth = 0;
+			Setting_Month = 0;
+			Setting_Year = 0;
+			handling(&DS3231_Minute, 59, 0);
 			break;
 		case 2:
-			handling(&DS3231_Hour, "hour", 23, 0);
+			Setting_Second = 0;
+			Setting_Minute = 0;
+			Setting_Hour = 1;
+			Setting_DayWeek = 0;
+			Setting_DayMonth = 0;
+			Setting_Month = 0;
+			Setting_Year = 0;
+			handling(&DS3231_Hour, 23, 0);
 			break;
 		case 3:
-			handling(&DS3231_DayWeek, "dayW", 7, 1);
+			Setting_Second = 0;
+			Setting_Minute = 0;
+			Setting_Hour = 0;
+			Setting_DayWeek = 1;
+			Setting_DayMonth = 0;
+			Setting_Month = 0;
+			Setting_Year = 0;
+			handling(&DS3231_DayWeek, 7, 1);
 			break;
 		case 4:
+			Setting_Second = 0;
+			Setting_Minute = 0;
+			Setting_Hour = 0;
+			Setting_DayWeek = 0;
+			Setting_DayMonth = 1;
+			Setting_Month = 0;
+			Setting_Year = 0;
 			handlingDay();
 			break;
 		case 5:
+			Setting_Second = 0;
+			Setting_Minute = 0;
+			Setting_Hour = 0;
+			Setting_DayWeek = 0;
+			Setting_DayMonth = 0;
+			 Setting_Month = 1;
+			Setting_Year = 0;
 			handlingMonth();
 			break;
 		case 6:
+			Setting_Second = 0;
+			Setting_Minute = 0;
+			Setting_Hour = 0;
+			Setting_DayWeek = 0;
+			Setting_DayMonth = 0;
+			Setting_Month = 0;
+			Setting_Year = 1;
 			handlingYear();
 			break;
 	}
+	SH1106_FontPrint(1, 0, 0, Arial12x12, "Settings");
+	Select(Setting_Second, 0, 1, "s", DS3231_Second);
+	Select(Setting_Minute, 0, 2, "m", DS3231_Minute);
+	Select(Setting_Hour, 0, 3, "h", DS3231_Hour);
+	Select(Setting_DayWeek, 1, 0, "d", DS3231_DayWeek);
+	Select(Setting_DayMonth, 1, 1, "D", DS3231_DayMonth);
+	Select(Setting_Month, 1, 2, "M", DS3231_Month);
+	Select(Setting_Year, 1, 3, "Y", DS3231_Year);
+}
+
+static void DrawTab(uint8_t x, uint8_t y, const char *format, uint8_t value)
+{
+	if (x>1 || y>4) return;
+	SH1106_FontPrint(1, 64*x+2, 16*y+2, Arial12x12, "%c : %d", *format, value);
+}
+
+static void DrawFilledTab(uint8_t x, uint8_t y, const char *format, uint8_t value)
+{
+	if (x>1 || y>4) return;
+	
+	SH1106_DrawFilledRectangle(1, 64*x, 16*y, 64, 16);
+	SH1106_FontPrint(0, 64*x+2, 16*y+2, Arial12x12, "%c : %d", *format, value);
+}
+
+static void Select(uint8_t state, uint8_t x, uint8_t y, const char *format, uint8_t value)
+{
+	if (state) DrawFilledTab(x, y, format, value);
+	else DrawTab(x, y, format, value);
 }

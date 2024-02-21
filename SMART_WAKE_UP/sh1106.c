@@ -478,7 +478,8 @@ void SH1106_DrawFilledCircle(uint8_t color, int16_t x0, int16_t y0, int16_t r)
 ********************************************************************/ 
 void SH1106_ClearBuffer(void)
 {
-	for (int i=0; i<(WIDTH*HEIGHT)/SH1106_DATA_SIZE; i++)
+	uint16_t bufferSize = (WIDTH*HEIGHT)/SH1106_DATA_SIZE;
+	for (int i=0; i<bufferSize; i++)
 		SH1106_Buffer[i] = 0;
 }
 

@@ -480,14 +480,14 @@
               <FilePath>.\sh1106.h</FilePath>
             </File>
             <File>
-              <FileName>st7920_fonts.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\st7920_fonts.h</FilePath>
-            </File>
-            <File>
               <FileName>buttons.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\buttons.h</FilePath>
+            </File>
+            <File>
+              <FileName>fonts.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\fonts.h</FilePath>
             </File>
           </Files>
         </Group>

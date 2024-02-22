@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\SMART_WAKE_UP.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\SMART_WAKE_UP.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6190004: Last Updated: Sun Feb 11 21:49:33 2024
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6190004: Last Updated: Thu Feb 22 01:08:03 2024
 <BR><P>
 <H3>Maximum Stack Usage =        360 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1265,10 +1265,18 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[f1]"></a>SH1106_ClearBuffer</STRONG> (Thumb, 46 bytes, Stack size 4 bytes, sh1106.o(.text.SH1106_ClearBuffer))
-<BR><BR>[Stack]<UL><LI>Max Depth = 4<LI>Call Chain = SH1106_ClearBuffer
+<P><STRONG><a name="[f1]"></a>SH1106_ClearBuffer</STRONG> (Thumb, 56 bytes, Stack size 8 bytes, sh1106.o(.text.SH1106_ClearBuffer))
+<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = SH1106_ClearBuffer
 </UL>
 <BR>[Called By]<UL><LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+</UL>
+
+<P><STRONG><a name="[e4]"></a>SH1106_DrawCharacter</STRONG> (Thumb, 286 bytes, Stack size 56 bytes, sh1106.o(.text.SH1106_DrawCharacter))
+<BR><BR>[Stack]<UL><LI>Max Depth = 68<LI>Call Chain = SH1106_DrawCharacter &rArr; SH1106_SetPixel
+</UL>
+<BR>[Calls]<UL><LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SH1106_SetPixel
+</UL>
+<BR>[Called By]<UL><LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SH1106_FontPrint
 </UL>
 
 <P><STRONG><a name="[de]"></a>SH1106_DrawLine</STRONG> (Thumb, 304 bytes, Stack size 56 bytes, sh1106.o(.text.SH1106_DrawLine))
@@ -1279,8 +1287,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MAIN_DisplayDate
 </UL>
 
-<P><STRONG><a name="[dd]"></a>SH1106_FontPrint</STRONG> (Thumb, 290 bytes, Stack size 120 bytes, sh1106.o(.text.SH1106_FontPrint))
-<BR><BR>[Stack]<UL><LI>Max Depth = 240 + Unknown Stack Size
+<P><STRONG><a name="[dd]"></a>SH1106_FontPrint</STRONG> (Thumb, 258 bytes, Stack size 104 bytes, sh1106.o(.text.SH1106_FontPrint))
+<BR><BR>[Stack]<UL><LI>Max Depth = 224 + Unknown Stack Size
 <LI>Call Chain = SH1106_FontPrint &rArr; vsprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vsprintf
@@ -1339,7 +1347,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f767xx.o(RESET)
 </UL>
-<P><STRONG><a name="[ad]"></a>main</STRONG> (Thumb, 138 bytes, Stack size 16 bytes, main.o(.text.main))
+<P><STRONG><a name="[ad]"></a>main</STRONG> (Thumb, 174 bytes, Stack size 32 bytes, main.o(.text.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 360 + Unknown Stack Size
 <LI>Call Chain = main &rArr; MAIN_DisplayDate &rArr; SH1106_FontPrint &rArr; vsprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
@@ -1470,7 +1478,7 @@ Global Symbols
 Local Symbols
 </H3>
 <P><STRONG><a name="[d8]"></a>MAIN_DisplayDate</STRONG> (Thumb, 692 bytes, Stack size 104 bytes, main.o(.text.MAIN_DisplayDate))
-<BR><BR>[Stack]<UL><LI>Max Depth = 344 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 328 + Unknown Stack Size
 <LI>Call Chain = MAIN_DisplayDate &rArr; SH1106_FontPrint &rArr; vsprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SH1106_DrawLine
@@ -1484,7 +1492,7 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[df]"></a>MAIN_Settings</STRONG> (Thumb, 386 bytes, Stack size 16 bytes, main.o(.text.MAIN_Settings))
-<BR><BR>[Stack]<UL><LI>Max Depth = 296 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 280 + Unknown Stack Size
 <LI>Call Chain = MAIN_Settings &rArr; handling &rArr; SH1106_FontPrint &rArr; vsprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;handlingYear
@@ -1496,7 +1504,7 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[e0]"></a>handling</STRONG> (Thumb, 174 bytes, Stack size 40 bytes, main.o(.text.handling))
-<BR><BR>[Stack]<UL><LI>Max Depth = 280 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 264 + Unknown Stack Size
 <LI>Call Chain = handling &rArr; SH1106_FontPrint &rArr; vsprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SH1106_FontPrint
@@ -1505,7 +1513,7 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[e1]"></a>handlingDay</STRONG> (Thumb, 1112 bytes, Stack size 24 bytes, main.o(.text.handlingDay))
-<BR><BR>[Stack]<UL><LI>Max Depth = 264 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 248 + Unknown Stack Size
 <LI>Call Chain = handlingDay &rArr; SH1106_FontPrint &rArr; vsprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SH1106_FontPrint
@@ -1514,7 +1522,7 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[e2]"></a>handlingMonth</STRONG> (Thumb, 566 bytes, Stack size 24 bytes, main.o(.text.handlingMonth))
-<BR><BR>[Stack]<UL><LI>Max Depth = 264 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 248 + Unknown Stack Size
 <LI>Call Chain = handlingMonth &rArr; SH1106_FontPrint &rArr; vsprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SH1106_FontPrint
@@ -1523,7 +1531,7 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[e3]"></a>handlingYear</STRONG> (Thumb, 464 bytes, Stack size 24 bytes, main.o(.text.handlingYear))
-<BR><BR>[Stack]<UL><LI>Max Depth = 264 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 248 + Unknown Stack Size
 <LI>Call Chain = handlingYear &rArr; SH1106_FontPrint &rArr; vsprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SH1106_FontPrint
@@ -1554,14 +1562,6 @@ Local Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SH1106_SendData
 <LI><a href="#[ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SH1106_SendCmd
-</UL>
-
-<P><STRONG><a name="[e4]"></a>SH1106_DrawCharacter</STRONG> (Thumb, 270 bytes, Stack size 64 bytes, sh1106.o(.text.SH1106_DrawCharacter))
-<BR><BR>[Stack]<UL><LI>Max Depth = 76<LI>Call Chain = SH1106_DrawCharacter &rArr; SH1106_SetPixel
-</UL>
-<BR>[Calls]<UL><LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SH1106_SetPixel
-</UL>
-<BR>[Called By]<UL><LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SH1106_FontPrint
 </UL>
 
 <P><STRONG><a name="[e7]"></a>SH1106_SpiInit</STRONG> (Thumb, 230 bytes, Stack size 0 bytes, sh1106.o(.text.SH1106_SpiInit))

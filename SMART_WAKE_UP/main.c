@@ -56,7 +56,6 @@ int main(void)
 		state ^= 1;
 		SH1106_SendBuffer();
 	}
-	
 }
 
 static void MAIN_DisplayDate(void)
@@ -89,7 +88,7 @@ static void MAIN_DisplayDate(void)
 	DS3231_Century = DS3231_BCD_DEC(data[5] & 0x80);
 	
 	//keyboard();
-	SH1106_FontPrint(1, 0, 0, &Arial12x12, "Hello Mr TESSON");
+	SH1106_DrawStr(1, 0, 0, &Arial12x12, "Hello Mr TESSON");
 	SH1106_FontPrint(1, 7, 13, &Arial28x28, "%02d:%02d:%02d", DS3231_Hour, DS3231_Minute, DS3231_Second);
 	SH1106_FontPrint(1, 0, 39, &Arial12x12, "%s,", days[DS3231_DayWeek]);
 	SH1106_FontPrint(1, 0, 52, &Arial12x12, "%s %d, 2%d%02d", months[DS3231_Month], DS3231_DayMonth, DS3231_Century, DS3231_Year);

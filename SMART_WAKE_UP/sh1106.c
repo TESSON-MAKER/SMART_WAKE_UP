@@ -269,6 +269,32 @@ void SH1106_DrawCharacter(uint8_t color, int16_t x, int16_t y, const Font *font,
 }
 
 /*******************************************************************
+ * @name       : SH1106_DrawStr
+ * @date       : 2024-01-03
+ * @function   : Set pixel in buffer
+ * @parameters : color, x, y, font, content
+ * @retvalue   : None
+********************************************************************/ 
+void SH1106_DrawStr(uint8_t color, int16_t x, int16_t y, const Font *font, const char *format)
+{
+	while (*format && x < WIDTH && y < HEIGHT) 
+	{
+		uint8_t currentChar = *format;
+
+		SH1106_DrawCharacter(color, x, y, font, currentChar);
+
+		// Create a space between the letters
+		uint8_t letterNumber = currentChar - SH1106_ASCII_OFFSET;
+		uint16_t index_letterSize = letterNumber * font->datasize;
+		uint8_t letterSize = font->data[index_letterSize];
+		x += letterSize + (font->length / 10);
+
+		// Go to next letter
+		format++;
+	}
+}
+
+/*******************************************************************
  * @name       : SH1106_FontPrint
  * @date       : 2024-01-03
  * @function   : Set pixel in buffer
@@ -279,27 +305,11 @@ void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, const Font *font, con
 {
 	va_list args;
 	va_start(args, format);
-	char formatted_string[50]; // Size according to your needs
+	char formatted_string[50]; // Taille en fonction de vos besoins
 	vsprintf(formatted_string, format, args);
 	va_end(args);
 
-	const char *str = formatted_string;
-
-	while (*str && x < WIDTH && y < HEIGHT) 
-	{
-		uint8_t currentChar = *str;
-		
-		SH1106_DrawCharacter(color, x, y, font, currentChar);
-
-		//Create a space between the letters
-		uint8_t letterNumber = currentChar - SH1106_ASCII_OFFSET;
-		uint16_t index_letterSize = letterNumber * font->datasize;
-		uint8_t letterSize = font->data[index_letterSize];
-		x += letterSize + (font->length / 10);
-		
-		//Go to next letter
-		str++;
-	}
+	SH1106_DrawStr(color, x, y, font, formatted_string); // Utiliser formatted_string au lieu de format
 }
 
 /*******************************************************************

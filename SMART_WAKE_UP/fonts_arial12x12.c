@@ -107,7 +107,7 @@ const uint8_t Arial12x12_Data[] =
 const Font Arial12x12 = {
 	.data = Arial12x12_Data,
 	.datasize = 25,
-	.length = 12,
+  .length = 12,
 	.height = 12,
 	.bytesPerColums = 2
 };

@@ -245,6 +245,8 @@ void SH1106_SetPixel(uint8_t color, int16_t x, int16_t y)
 
 void SH1106_DrawCharacter(uint8_t color, int16_t x, int16_t y, const Font *font, uint8_t letterNumberAscii) 
 {
+	if (letterNumberAscii < SH1106_MIN_ASCII_VALUE || letterNumberAscii > SH1106_MAX_ASCII_VALUE) return;
+	
 	uint8_t letterNumber = letterNumberAscii - SH1106_ASCII_OFFSET;
 	uint16_t index_letterSize = letterNumber * font->datasize;
 	uint8_t letterSize = font->data[index_letterSize];
@@ -273,7 +275,6 @@ void SH1106_DrawCharacter(uint8_t color, int16_t x, int16_t y, const Font *font,
  * @parameters : color, x, y, font, content
  * @retvalue   : None
 ********************************************************************/ 
-
 void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, const Font *font, const char *format, ...) 
 {
 	va_list args;
@@ -287,8 +288,6 @@ void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, const Font *font, con
 	while (*str && x < WIDTH && y < HEIGHT) 
 	{
 		uint8_t currentChar = *str;
-		
-		if (currentChar < SH1106_MIN_ASCII_VALUE || currentChar > SH1106_MAX_ASCII_VALUE) return;
 		
 		SH1106_DrawCharacter(color, x, y, font, currentChar);
 

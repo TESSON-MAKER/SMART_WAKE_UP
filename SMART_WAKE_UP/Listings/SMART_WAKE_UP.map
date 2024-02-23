@@ -1083,8 +1083,8 @@ Image Symbol Table
     [Anonymous Symbol]                       0x08001f90   Section        0  main.o(.text.MAIN_Settings)
     [Anonymous Symbol]                       0x08002118   Section        0  sh1106.o(.text.SH1106_ClearBuffer)
     [Anonymous Symbol]                       0x08002150   Section        0  sh1106.o(.text.SH1106_DrawCharacter)
-    [Anonymous Symbol]                       0x08002258   Section        0  sh1106.o(.text.SH1106_DrawLine)
-    [Anonymous Symbol]                       0x08002388   Section        0  sh1106.o(.text.SH1106_FontPrint)
+    [Anonymous Symbol]                       0x08002270   Section        0  sh1106.o(.text.SH1106_DrawLine)
+    [Anonymous Symbol]                       0x080023a0   Section        0  sh1106.o(.text.SH1106_FontPrint)
     [Anonymous Symbol]                       0x08002478   Section        0  sh1106.o(.text.SH1106_Init)
     SH1106_Reset                             0x08002509   Thumb Code    52  sh1106.o(.text.SH1106_Reset)
     [Anonymous Symbol]                       0x08002508   Section        0  sh1106.o(.text.SH1106_Reset)
@@ -1506,9 +1506,9 @@ Image Symbol Table
     GPIO_DigitalWrite                        0x08001ab9   Thumb Code    68  gpio.o(.text.GPIO_DigitalWrite)
     GPIO_PinMode                             0x08001b01   Thumb Code   472  gpio.o(.text.GPIO_PinMode)
     SH1106_ClearBuffer                       0x08002119   Thumb Code    56  sh1106.o(.text.SH1106_ClearBuffer)
-    SH1106_DrawCharacter                     0x08002151   Thumb Code   262  sh1106.o(.text.SH1106_DrawCharacter)
-    SH1106_DrawLine                          0x08002259   Thumb Code   304  sh1106.o(.text.SH1106_DrawLine)
-    SH1106_FontPrint                         0x08002389   Thumb Code   240  sh1106.o(.text.SH1106_FontPrint)
+    SH1106_DrawCharacter                     0x08002151   Thumb Code   284  sh1106.o(.text.SH1106_DrawCharacter)
+    SH1106_DrawLine                          0x08002271   Thumb Code   304  sh1106.o(.text.SH1106_DrawLine)
+    SH1106_FontPrint                         0x080023a1   Thumb Code   216  sh1106.o(.text.SH1106_FontPrint)
     SH1106_Init                              0x08002479   Thumb Code   138  sh1106.o(.text.SH1106_Init)
     SH1106_SendBuffer                        0x08002541   Thumb Code   100  sh1106.o(.text.SH1106_SendBuffer)
     SH1106_SetPixel                          0x08002639   Thumb Code   174  sh1106.o(.text.SH1106_SetPixel)
@@ -1714,10 +1714,10 @@ Memory Map of the image
     0x08001f90   0x08001f90   0x00000182   Code   RO           21    .text.MAIN_Settings  main.o
     0x08002112   0x08002112   0x00000006   PAD
     0x08002118   0x08002118   0x00000038   Code   RO          210    .text.SH1106_ClearBuffer  sh1106.o
-    0x08002150   0x08002150   0x00000106   Code   RO          196    .text.SH1106_DrawCharacter  sh1106.o
-    0x08002256   0x08002256   0x00000002   PAD
-    0x08002258   0x08002258   0x00000130   Code   RO          200    .text.SH1106_DrawLine  sh1106.o
-    0x08002388   0x08002388   0x000000f0   Code   RO          198    .text.SH1106_FontPrint  sh1106.o
+    0x08002150   0x08002150   0x0000011c   Code   RO          196    .text.SH1106_DrawCharacter  sh1106.o
+    0x0800226c   0x0800226c   0x00000004   PAD
+    0x08002270   0x08002270   0x00000130   Code   RO          200    .text.SH1106_DrawLine  sh1106.o
+    0x080023a0   0x080023a0   0x000000d8   Code   RO          198    .text.SH1106_FontPrint  sh1106.o
     0x08002478   0x08002478   0x0000008a   Code   RO          212    .text.SH1106_Init   sh1106.o
     0x08002502   0x08002502   0x00000006   PAD
     0x08002508   0x08002508   0x00000034   Code   RO          216    .text.SH1106_Reset  sh1106.o
@@ -1838,22 +1838,22 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-      1122          0          0          0          6       8197   buttons.o
-       804          0          0          0          1       3019   ds3231.o
-         0          0       2408          0          0        693   fonts_arial12x12.o
-         0          0      10856          0          0        711   fonts_arial28x28.o
-       540          0          0          0          0       3058   gpio.o
-      3568          8        284         87         12       4198   main.o
-      1802          0          0          0       1024       8202   sh1106.o
-        64         26        504          0       1536        880   startup_stm32f767xx.o
-        18          0          0          0          0       3357   system_stm32f7xx.o
-       104          0          0          0          0       1019   tim.o
-       242          0          0          1         16       7623   urm37.o
+      1122          0          0          0          6       8196   buttons.o
+       804          0          0          0          1       3017   ds3231.o
+         0          0       2408          0          0        690   fonts_arial12x12.o
+         0          0      10856          0          0        708   fonts_arial28x28.o
+       540          0          0          0          0       3056   gpio.o
+      3568          8        284         87         12       4195   main.o
+      1800          0          0          0       1024       8201   sh1106.o
+        64         26        504          0       1536        876   startup_stm32f767xx.o
+        18          0          0          0          0       3356   system_stm32f7xx.o
+       104          0          0          0          0       1017   tim.o
+       242          0          0          1         16       7622   urm37.o
 
     ----------------------------------------------------------------------
-      8374         34      14084         88       2600      40957   Object Totals
+      8374         34      14084         88       2600      40934   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-       110          0          0          0          5          0   (incl. Padding)
+       112          0          0          0          5          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -1960,8 +1960,8 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     15180        302      14636         88       2696      42905   Grand Totals
-     15180        302      14636         88       2696      42905   ELF Image Totals
+     15180        302      14636         88       2696      42882   Grand Totals
+     15180        302      14636         88       2696      42882   ELF Image Totals
      15180        302      14636         88          0          0   ROM Totals
 
 ==============================================================================

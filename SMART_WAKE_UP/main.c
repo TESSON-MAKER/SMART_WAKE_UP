@@ -25,6 +25,7 @@ static uint8_t state = 0;
 static void MAIN_DisplayDate(void);
 static void MAIN_Settings(void);
 static void MAIN_Initialization(void);
+static void keyboard(void);
 
 int main(void) 
 {
@@ -35,7 +36,6 @@ int main(void)
 	GPIO_PinMode(GPIOB, 14, OUTPUT);
 	SH1106_ClearBuffer();
 	SH1106_SendBuffer();
-	
 	
 	while (1) 
 	{
@@ -88,6 +88,7 @@ static void MAIN_DisplayDate(void)
 	DS3231_Year = DS3231_BCD_DEC(data[6]);
 	DS3231_Century = DS3231_BCD_DEC(data[5] & 0x80);
 	
+	//keyboard();
 	SH1106_FontPrint(1, 0, 0, &Arial12x12, "Hello Mr TESSON");
 	SH1106_FontPrint(1, 7, 13, &Arial28x28, "%02d:%02d:%02d", DS3231_Hour, DS3231_Minute, DS3231_Second);
 	SH1106_FontPrint(1, 0, 39, &Arial12x12, "%s,", days[DS3231_DayWeek]);
@@ -247,3 +248,51 @@ static void MAIN_Settings(void)
 			break;
 	}
 }
+
+static void keyboard(void)
+{
+	int numberCols = 8;
+	if (BUTTON_TopState) 
+	{
+		move++;
+		BUTTON_TopState = 0;
+	}
+	
+	if (BUTTON_BottomState) 
+	{
+		move--;
+		BUTTON_BottomState = 0;
+	}
+	
+  if (move > 25) move = 0;
+	if (move < 0) move = 25;
+	
+	for(int row = 0; row < 4; row++)
+	{		
+		for(int col = 0; col < numberCols; col++)
+		{
+			int side = 13;
+			int coorX = side*col;
+			int coorXend = side;
+			int coorY = side*row;
+			int coorYend = side;
+			
+			uint16_t NumLetter = 'a' + row * numberCols + col;
+			int select = row * numberCols + col;
+
+			if (select == move) 
+			{
+				SH1106_DrawFilledRectangle(1, coorX, coorY, coorXend, coorYend);
+				SH1106_DrawCharacter(0, coorX + 2, coorY + 2, &Arial12x12, NumLetter);
+			}
+			else
+			{
+				SH1106_DrawRectangle(1, coorX, coorY, coorXend, coorYend);
+				SH1106_DrawCharacter(1, coorX + 2, coorY + 2, &Arial12x12, NumLetter);
+			}
+		}
+	}
+}
+
+	
+	

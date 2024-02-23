@@ -25,7 +25,6 @@ static uint8_t state = 0;
 static void MAIN_DisplayDate(void);
 static void MAIN_Settings(void);
 static void MAIN_Initialization(void);
-//static void keyboard(void);
 
 int main(void) 
 {
@@ -33,20 +32,16 @@ int main(void)
 	BUTTONS_Init();
 	DS3231_Init();
 	GPIO_PinMode(GPIOB, 7, OUTPUT);
-	//GPIO_PinMode(GPIOB, 0, OUTPUT);
 	GPIO_PinMode(GPIOB, 14, OUTPUT);
 	SH1106_ClearBuffer();
 	SH1106_SendBuffer();
 	
-	/*uint8_t dataT[7] = {DS3231_DEC_BCD(0), DS3231_DEC_BCD(35), DS3231_DEC_BCD(20), DS3231_DEC_BCD(06), DS3231_DEC_BCD(03), DS3231_DEC_BCD(02), DS3231_DEC_BCD(24)};
-	DS3231_WriteMemory(0x68, 0x00, dataT, 7);*/
 	
 	while (1) 
 	{
 		SH1106_ClearBuffer();
 		BUTTONS_KeyState();
 		GPIO_DigitalWrite(GPIOB, 7, state);	
-		//GPIO_DigitalWrite(GPIOB, 0, !state);
 		GPIO_DigitalWrite(GPIOB, 14, !state);	
 		
 		switch (BUTTON_Switch)
@@ -252,64 +247,3 @@ static void MAIN_Settings(void)
 			break;
 	}
 }
-
-/*static void keyboard(void)
-{
-    // Incrémente move si le bouton TopState est activé
-	if (BUTTON_TopState) 
-	{
-		move++;
-		BUTTON_TopState = 0;
-	}
-	
-    // Décrémente move si le bouton BottomState est activé
-	if (BUTTON_BottomState) 
-	{
-		move--;
-		BUTTON_BottomState = 0;
-	}
-	
-    // Assure que move reste dans la plage 0-25
-	if (move > 25) 
-        move = 0;
-	if (move < 0) 
-        move = 25;
-	
-    // Boucle à travers les trois groupes de lettres
-	for(int group = 0; group < 3; group++)
-	{
-        // Calcul de la plage d'indices de lettres pour le groupe actuel
-		int start_index = group * 10;
-		int end_index = start_index + 10;
-		
-        // Parcoure les lettres dans la plage d'indices actuelle
-		for(int i = start_index; i < end_index; i++)
-		{
-            // Calcul des informations sur la lettre actuelle
-			uint16_t NumLetter = 65 + i;
-			uint8_t dataSize = &Arial12x12[0];
-			uint16_t index_LetterSize = 4 + NumLetter * dataSize;
-			uint8_t letterSize = &Arial12x12[index_LetterSize];
-			
-            // Calcul de la position verticale de la lettre sur l'écran
-			uint8_t letterCoor = (i - start_index) * 12 + (12 - letterSize) / 2;
-			
-            // Vérifie si la lettre est sélectionnée
-			if (i == move) 
-			{
-                // Dessine un rectangle rempli et affiche la lettre en surbrillance
-				SH1106_DrawFilledRectangle(1, (i - start_index) * 12, group * 12, 12, 12);
-				SH1106_DrawCharacter(0, letterCoor, group * 12 + 2, &Arial12x12, NumLetter);
-			}
-			else
-			{
-                // Dessine un rectangle vide et affiche la lettre normalement
-				SH1106_DrawRectangle(1, (i - start_index) * 12, group * 12, 12, 12);
-				SH1106_DrawCharacter(1, letterCoor, group * 12 + 2, &Arial12x12, NumLetter);
-			}
-		}
-	}
-}	*/
-
-	
-	

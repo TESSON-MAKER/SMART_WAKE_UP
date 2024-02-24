@@ -110,7 +110,7 @@ const Font Arial12x12 = {
 	.asciiEnd = 127,
 	.asciiOffset = 32,
 	.datasize = 25,
-  .length = 12,
+	.length = 12,
 	.height = 12,
 	.bytesPerColums = 2
 };

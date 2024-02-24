@@ -280,7 +280,8 @@ static void keyboard(void)
 		BUTTON_TopState = 0;
 	}
 
-	move = (move < 0) ? 0 : (move >= numberLetters) ? numberLetters - 1 : move; // Adjusting the value of move
+	if (move > numberLetters) move = 0;
+	if (move < 0) move = numberLetters;
 
 	for (int i = 0; i < numberLetters; i++)
 	{       
@@ -319,8 +320,3 @@ static void keyboard(void)
 	SH1106_DrawStr(1, 2, 2, &Arial12x12, string);
 	SH1106_DrawRectangle(1, 0, 0, 126, 13);
 }
-
-
-
-	
-	

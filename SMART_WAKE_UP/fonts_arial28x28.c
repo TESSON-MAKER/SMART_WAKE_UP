@@ -489,6 +489,9 @@ extern const uint8_t Arial28x28_Data[] =
 
 extern const Font Arial28x28 = {
 	.data = Arial28x28_Data,
+	.asciiBegin = 31,
+	.asciiEnd = 127,
+	.asciiOffset = 32,
 	.datasize = 113,
 	.length = 28,
 	.height = 28,

@@ -5,6 +5,9 @@
 
 typedef struct Font {
 	const uint8_t *data;
+	const uint8_t asciiBegin;
+	const uint8_t asciiEnd;
+	const uint8_t asciiOffset;
 	const uint8_t datasize;
 	const uint8_t length;
 	const uint8_t height;

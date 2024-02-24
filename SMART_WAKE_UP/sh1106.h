@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <math.h>
 
 #include "stm32f7xx.h"
 #include "fonts.h"

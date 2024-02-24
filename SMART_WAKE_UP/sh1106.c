@@ -305,11 +305,11 @@ void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, const Font *font, con
 {
 	va_list args;
 	va_start(args, format);
-	char formatted_string[50]; // Taille en fonction de vos besoins
+	char formatted_string[50]; 
 	vsprintf(formatted_string, format, args);
 	va_end(args);
 
-	SH1106_DrawStr(color, x, y, font, formatted_string); // Utiliser formatted_string au lieu de format
+	SH1106_DrawStr(color, x, y, font, formatted_string); 
 }
 
 /*******************************************************************
@@ -319,7 +319,7 @@ void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, const Font *font, con
  * @parameters :color, x0, y0, x1, y1
  * @retvalue   :None
 ********************************************************************/ 
-void SH1106_DrawLine(uint8_t color, uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1)
+void SH1106_DrawLine(uint8_t color, uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) 
 {
 	int dx = (x1 >= x0) ? x1 - x0 : x0 - x1;
 	int dy = (y1 >= y0) ? y1 - y0 : y0 - y1;
@@ -327,22 +327,20 @@ void SH1106_DrawLine(uint8_t color, uint8_t x0, uint8_t y0, uint8_t x1, uint8_t 
 	int sy = (y0 < y1) ? 1 : -1;
 	int err = dx - dy;
 
-	while (x0 != x1 || y0 != y1) // Until we reach the end of the line
-	{ 
-		SH1106_SetPixel(color, x0, y0); // Set the pixel at the current position
-
-		int e2 = 2 * err; // Double of the error
-
-		if (e2 >= dy) // If double the error is greater than or equal to the difference in y
-		{ 
-			err += dy; // Update the error
-			x0 += sx; // Move horizontally
+	while(1)
+	{
+		SH1106_SetPixel(color, x0, y0);
+		if (x0 == x1 && y0 == y1) break;
+		int e2 = err + err;
+		if (e2 > -dy)
+		{
+			err -= dy;
+			x0 += sx;
 		}
-
-		if (e2 <= dx) // If double the error is less than or equal to the difference in x
-		{ 
-			err += dx; // Update the error
-			y0 += sy; // Move vertically
+		if (e2 < dx)
+		{
+			err += dx;
+			y0 += sy;
 		}
 	}
 }
@@ -379,8 +377,6 @@ void SH1106_DrawRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uin
 ********************************************************************/ 
 void SH1106_DrawFilledRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-	uint8_t i;
-
 	//Check input parameters
 	if (x >= WIDTH || y >= HEIGHT) return;
 
@@ -389,7 +385,7 @@ void SH1106_DrawFilledRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t 
 	if ((y + h) >= HEIGHT) h = HEIGHT - y;
 
 	//Draw lines
-	for (i = 0; i <= h; i++)
+	for (int i = 0; i <= h; i++)
 		SH1106_DrawLine(color, x, y + i, x + w, y + i);
 }
 

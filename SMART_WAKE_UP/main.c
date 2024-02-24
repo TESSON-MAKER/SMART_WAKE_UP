@@ -6,6 +6,9 @@
 
 const char *days[] = {"NA", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 const char *months[] = {"NA", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+uint8_t MAJletters[36] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+uint8_t letters[36] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+uint8_t MAJ = 0;
 
 static int8_t DS3231_Second = 0;
 static int8_t DS3231_Minute = 0;
@@ -248,50 +251,76 @@ static void MAIN_Settings(void)
 	}
 }
 
+char string[50]; // Array to store the entered characters
+int number = 0; // Counter for the number of entered characters
+
 static void keyboard(void)
 {
-	int numberCols = 8;
-	if (BUTTON_TopState) 
+	const int numberCols = 9;
+	const int numberLetters = 36;
+	const int side = 14;
+	const int height = 12;
+
+	uint8_t row = 0;
+	uint8_t col = 0;
+
+	if (BUTTON_LeftState) 
 	{
 		move++;
-		BUTTON_TopState = 0;
+		BUTTON_LeftState = 0;
 	}
-	
-	if (BUTTON_BottomState) 
+	else if (BUTTON_RightState) 
 	{
 		move--;
-		BUTTON_BottomState = 0;
+		BUTTON_RightState = 0;
 	}
-	
-  if (move > 25) move = 0;
-	if (move < 0) move = 25;
-	
-	for(int row = 0; row < 4; row++)
-	{		
-		for(int col = 0; col < numberCols; col++)
-		{
-			int side = 13;
-			int coorX = side*col;
-			int coorXend = side;
-			int coorY = side*row;
-			int coorYend = side;
-			
-			uint16_t NumLetter = 'a' + row * numberCols + col;
-			int select = row * numberCols + col;
+	else if (BUTTON_TopState)
+	{
+		MAJ ^= 1;
+		BUTTON_TopState = 0;
+	}
 
-			if (select == move) 
+	move = (move < 0) ? 0 : (move >= numberLetters) ? numberLetters - 1 : move; // Adjusting the value of move
+
+	for (int i = 0; i < numberLetters; i++)
+	{       
+		if ((i % numberCols == 0) && (i != 0)) row++;
+
+		col = i % numberCols;
+		int coorX = side * col;
+		int coorY = 14 + height * row;
+		int select = row * numberCols + col;
+
+		// Determining the character to display
+		char character;
+		if (MAJ == 0) character = letters[i];
+		else character = MAJletters[i];
+
+		// Displaying the character
+		if (select == move) 
+		{
+			SH1106_DrawFilledRectangle(1, coorX, coorY, side, height);
+			SH1106_DrawCharacter(0, coorX + 2, coorY + 2, &Arial12x12, character);
+
+			if (BUTTON_BottomState && number < 49) // Checking the array limit
 			{
-				SH1106_DrawFilledRectangle(1, coorX, coorY, coorXend, coorYend);
-				SH1106_DrawCharacter(0, coorX + 2, coorY + 2, &Arial12x12, NumLetter);
-			}
-			else
-			{
-				SH1106_DrawRectangle(1, coorX, coorY, coorXend, coorYend);
-				SH1106_DrawCharacter(1, coorX + 2, coorY + 2, &Arial12x12, NumLetter);
+				string[number++] = character; // Adding the character to the array
+				BUTTON_BottomState = 0;
 			}
 		}
+		else
+		{
+			SH1106_DrawRectangle(1, coorX, coorY, side, height);
+			SH1106_DrawCharacter(1, coorX + 2, coorY + 2, &Arial12x12, character);
+		}
 	}
+
+	// Update the display once after adding all characters
+	SH1106_DrawStr(1, 2, 2, &Arial12x12, string);
+	SH1106_DrawRectangle(1, 0, 0, 126, 13);
 }
+
+
 
 	
 	

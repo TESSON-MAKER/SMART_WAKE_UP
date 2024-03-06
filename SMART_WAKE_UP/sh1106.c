@@ -290,9 +290,6 @@ void SH1106_DrawStr(uint8_t color, int16_t x, int16_t y, const Font *font, const
 	}
 }
 
-//J'ai fait caca
-
-
 /*******************************************************************
  * @name       : SH1106_FontPrint
  * @date       : 2024-01-03

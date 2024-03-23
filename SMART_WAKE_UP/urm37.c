@@ -13,7 +13,7 @@ static uint8_t URM37_DistReceive[4] = {0};
 
 static  int indexR = 0;
 extern uint8_t dataR[4] = {0};
-static uint8_t URM37_Available = 1;
+static uint8_t URM37_BUSY = 0;
 
 /*******************************************************************
  * @name       :URM37_Init(void)
@@ -64,17 +64,16 @@ void URM37_Init(void)
 ********************************************************************/ 
 void URM37_Measure(uint8_t *type)
 {
-	if (URM37_Available) 
+	if (!URM37_BUSY) 
 	{
 		while (indexT < 4) 
 		{
-			while(!(USART2->ISR & USART_ISR_TC));
-			
+			while (!(USART2->ISR & USART_ISR_TXE));
 			USART2->TDR = type[indexT];
 			indexT++;
 		}
 		indexT = 0;
-		URM37_Available = 0;
+		URM37_BUSY = 1;
 	}
 }
 
@@ -97,7 +96,7 @@ void USART2_IRQHandler(void)
 			if (dataR[0] == 0x11) for(int i=0; i<4; ++i) URM37_TempReceive[i] = dataR[i];
 			else if (dataR[0] == 0x22) for(int i=0; i<4; ++i) URM37_DistReceive[i] = dataR[i];
 			
-			URM37_Available = 1;
+			URM37_BUSY = 0;
 			indexR = 0;
 		}
 	}

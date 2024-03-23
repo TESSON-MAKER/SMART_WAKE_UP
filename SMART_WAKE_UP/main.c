@@ -32,15 +32,15 @@ static void MAIN_Initialization(void);
 int main(void) 
 {
 	SH1106_Init();
+	SH1106_ClearBuffer();
+		
 	BUTTONS_Init();
 	DS3231_Init();
 	URM37_Init();
 	
-	
 	GPIO_PinMode(GPIOB, 7, OUTPUT);
 	GPIO_PinMode(GPIOB, 14, OUTPUT);
-	SH1106_ClearBuffer();
-	SH1106_SendBuffer();
+	
 	
 	while (1) 
 	{
@@ -96,7 +96,7 @@ static void MAIN_DisplayDate(void)
 	DS3231_Century = DS3231_BCD_DEC(data[5] & 0x80);
 	
 	//keyboard();
-	SH1106_FontPrint(1, 0, 0, &Arial12x12, "Temp : %.1f", temp);
+	SH1106_FontPrint(1, 0, 0, &Arial12x12, "Temp: %.1f degrees", temp);
 	SH1106_FontPrint(1, 7, 13, &Arial28x28, "%02d:%02d:%02d", DS3231_Hour, DS3231_Minute, DS3231_Second);
 	SH1106_FontPrint(1, 0, 39, &Arial12x12, "%s,", days[DS3231_DayWeek]);
 	SH1106_FontPrint(1, 0, 52, &Arial12x12, "%s %d, 2%d%02d", months[DS3231_Month], DS3231_DayMonth, DS3231_Century, DS3231_Year);

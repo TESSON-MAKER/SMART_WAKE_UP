@@ -1,4 +1,5 @@
 #include "urm37.h"
+#include "tim.h"
 
 #define USART2_AF 0x07
 #define BAUD_RATE 9600
@@ -49,8 +50,7 @@ void URM37_Init(void)
 
 	NVIC_SetPriority(USART2_IRQn, 0);
 	NVIC_EnableIRQ(USART2_IRQn);
-
-
+	
 	// Configurer les interruptions pour la r?eption et la transmission USART2
 	USART2->CR1 |= USART_CR1_RXNEIE;
 }

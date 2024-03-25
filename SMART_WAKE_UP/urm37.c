@@ -1,5 +1,4 @@
 #include "urm37.h"
-#include "tim.h"
 
 #define USART2_AF 0x07
 #define BAUD_RATE 9600

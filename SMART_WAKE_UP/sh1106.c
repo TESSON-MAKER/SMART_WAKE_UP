@@ -457,12 +457,12 @@ void SH1106_DrawFilledCircle(uint8_t color, int16_t x0, int16_t y0, int16_t r)
 		x++;
 		ddF_x += 2;
 		f += ddF_x;
-		
-		SH1106_DrawLine(color, x0 - x, y0 + y, x0 + x, y0 + y);
-		SH1106_DrawLine(color, + x, y0 - y, x0 - x, y0 - y);
-		
-		SH1106_DrawLine(color, + y, y0 + x, x0 - y, y0 + x);
-		SH1106_DrawLine(color, + y, y0 - x, x0 - y, y0 - x);
+
+		SH1106_DrawLine(color,x0 - x, y0 + y, x0 + x, y0 + y);
+		SH1106_DrawLine(color,x0 + x, y0 - y, x0 - x, y0 - y);
+
+		SH1106_DrawLine(color,x0 + y, y0 + x, x0 - y, y0 + x);
+		SH1106_DrawLine(color,x0 + y, y0 - x, x0 - y, y0 - x);
 	}
 }
 

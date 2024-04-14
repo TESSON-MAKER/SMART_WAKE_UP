@@ -193,10 +193,6 @@ void SH1106_SetPixel(uint8_t color, int16_t x, int16_t y)
  * @parameters : color, x, y, font, letterNumberAscii
  * @retvalue   : None
 ********************************************************************/
-#define SH1106_MIN_ASCII_VALUE 31
-#define SH1106_MAX_ASCII_VALUE 127
-#define SH1106_ASCII_OFFSET 32
-
 void SH1106_DrawCharacter(uint8_t color, int16_t x, int16_t y, const Font *font, uint8_t letterNumberAscii) 
 {
 	uint8_t letterNumber = letterNumberAscii - SH1106_ASCII_OFFSET;

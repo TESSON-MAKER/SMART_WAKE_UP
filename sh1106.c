@@ -145,9 +145,9 @@ void SH1106_SendBuffer(void)
 		SH1106_SendCmd(YLevel+i);
 		SH1106_SendCmd(XLevelL);
 		SH1106_SendCmd(XLevelH);
-		for(int n=0; n<WIDTH; n++)
+		for(int n=0; n<SH1106_WIDTH; n++)
 		{
-			SH1106_SendData(SH1106_Buffer[i*WIDTH+n]); 
+			SH1106_SendData(SH1106_Buffer[i*SH1106_WIDTH+n]); 
 		}
 	}
 }
@@ -177,7 +177,7 @@ static void SH1106_Reset(void)
 ********************************************************************/ 
 void SH1106_SetPixel(uint8_t color, int16_t x, int16_t y) 
 {
-	if (x >= WIDTH || y >= HEIGHT || x < 0 || y < 0) return;
+	if (x >= SH1106_WIDTH || y >= SH1106_HEIGHT || x < 0 || y < 0) return;
 
 	uint16_t index = (y / 8) * 128 + x;
 	uint8_t bitOffset = y % SH1106_DATA_SIZE;
@@ -227,7 +227,7 @@ void SH1106_DrawCharacter(uint8_t color, int16_t x, int16_t y, const Font *font,
 ********************************************************************/ 
 void SH1106_DrawStr(uint8_t color, int16_t x, int16_t y, const Font *font, const char *format)
 {
-	while (*format && x < WIDTH && y < HEIGHT) 
+	while (*format && x < SH1106_WIDTH && y < SH1106_HEIGHT) 
 	{
 		uint8_t currentChar = *format;
 
@@ -305,11 +305,11 @@ void SH1106_DrawLine(uint8_t color, uint8_t x0, uint8_t y0, uint8_t x1, uint8_t 
 void SH1106_DrawRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	//Check input parameters
-	if (x >= WIDTH || y >= HEIGHT) return;
+	if (x >= SH1106_WIDTH || y >= SH1106_HEIGHT) return;
 
 	//Check width and height
-	if ((x + w) >= WIDTH) w = WIDTH - x;
-	if ((y + h) >= HEIGHT) h = HEIGHT - y;
+	if ((x + w) >= SH1106_WIDTH) w = SH1106_WIDTH - x;
+	if ((y + h) >= SH1106_HEIGHT) h = SH1106_HEIGHT - y;
 
 	//Draw 4 lines
 	SH1106_DrawLine(color, x, y, x + w, y);         //Top line
@@ -328,11 +328,11 @@ void SH1106_DrawRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uin
 void SH1106_DrawFilledRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	//Check input parameters
-	if (x >= WIDTH || y >= HEIGHT) return;
+	if (x >= SH1106_WIDTH || y >= SH1106_HEIGHT) return;
 
 	//Check width and height
-	if ((x + w) >= WIDTH) w = WIDTH - x;
-	if ((y + h) >= HEIGHT) h = HEIGHT - y;
+	if ((x + w) >= SH1106_WIDTH) w = SH1106_WIDTH - x;
+	if ((y + h) >= SH1106_HEIGHT) h = SH1106_HEIGHT - y;
 
 	//Draw lines
 	for (int i = 0; i <= h; i++)
@@ -429,7 +429,7 @@ void SH1106_DrawFilledCircle(uint8_t color, int16_t x0, int16_t y0, int16_t r)
 ********************************************************************/ 
 void SH1106_ClearBuffer(void)
 {
-	uint16_t bufferSize = (WIDTH*HEIGHT)/SH1106_DATA_SIZE;
+	uint16_t bufferSize = (SH1106_WIDTH*SH1106_HEIGHT)/SH1106_DATA_SIZE;
 	for (int i=0; i<bufferSize; i++)
 		SH1106_Buffer[i] = 0;
 }
@@ -443,23 +443,41 @@ void SH1106_ClearBuffer(void)
 ********************************************************************/ 
 void SH1106_Init(void)
 {
+	// Initialize SPI link
 	SH1106_SpiInit();
+	
+	// Wait 200ms
 	TIM_Wait(200);
+	
+	// Reset
 	SH1106_Reset();
-	SH1106_SendCmd(DISPLAY_OFF);
-	SH1106_SendDoubleCmd(DISPLAY_CLK, 0x80);
-	SH1106_SendDoubleCmd(MULTIX_RAT, 0x3F);
-	SH1106_SendDoubleCmd(DISPLAY_OFFSET, 0x00);
-	SH1106_SendCmd(DISPLAY_STARTLINE);
-	SH1106_SendDoubleCmd(SET_DCDC, 0x8B);
-	SH1106_SendCmd(SET_SEGMENT);
-	SH1106_SendCmd(SET_COM_OUT_SCAN_DIR);
-	SH1106_SendDoubleCmd(SET_COM_HARD, 0x12);
-	SH1106_SendDoubleCmd(SET_CONTRAST, 0xFF);
-	SH1106_SendDoubleCmd(SET_PRECHARGE, 0x1F); 
-	SH1106_SendDoubleCmd(START_LINE, 0x33);	
-	SH1106_SendCmd(NORMAL_DISPLAY);
-	SH1106_SendCmd(ENTIRE_DISPLAY_OFF);
-	TIM_Wait(10);
-	SH1106_SendCmd(DISPLAY_ON);
+	
+	// Display OFF
+	SH1106_SendCmd(SH1106_CMD_DISP_OFF);
+	
+	// Set multiplex ratio (visible lines)
+	SH1106_SendDoubleCmd(SH1106_CMD_SETMUX, 0x3F); 
+	// Set display offset (offset of first line from the top of display)
+	SH1106_SendDoubleCmd(SH1106_CMD_SETOFFS, 0x00); 
+	// Set display start line (first line displayed)
+	SH1106_SendCmd(SH1106_CMD_STARTLINE); 
+	// Set segment re-map (X coordinate)
+	SH1106_SendCmd(SH1106_CMD_SEG_NORM);
+	// Set COM output scan direction (Y coordinate)
+	SH1106_SendCmd(SH1106_CMD_COM_NORM);
+	// Set COM pins hardware configuration
+	SH1106_SendDoubleCmd(SH1106_CMD_COM_HW, 0x12);
+	// Set contrast control
+	SH1106_SendDoubleCmd(SH1106_CMD_CONTRAST, 0xFF); // Contrast: middle level
+	// Disable entire display ON
+	SH1106_SendCmd(SH1106_CMD_EDOFF);
+	
+	// Disable display inversion
+	SH1106_SendCmd(SH1106_CMD_INV_OFF); 
+	
+	// Set clock divide ratio and oscillator frequency
+	SH1106_SendDoubleCmd(SH1106_CMD_CLOCKDIV, 0x80);
+	
+	// Display ON
+	SH1106_SendCmd(SH1106_CMD_DISP_ON);
 }

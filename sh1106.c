@@ -445,16 +445,12 @@ void SH1106_Init(void)
 {
 	// Initialize SPI link
 	SH1106_SpiInit();
-	
 	// Wait 200ms
 	TIM_Wait(200);
-	
 	// Reset
 	SH1106_Reset();
-	
 	// Display OFF
 	SH1106_SendCmd(SH1106_CMD_DISP_OFF);
-	
 	// Set multiplex ratio (visible lines)
 	SH1106_SendDoubleCmd(SH1106_CMD_SETMUX, 0x3F); 
 	// Set display offset (offset of first line from the top of display)
@@ -471,13 +467,10 @@ void SH1106_Init(void)
 	SH1106_SendDoubleCmd(SH1106_CMD_CONTRAST, 0xFF); // Contrast: middle level
 	// Disable entire display ON
 	SH1106_SendCmd(SH1106_CMD_EDOFF);
-	
 	// Disable display inversion
 	SH1106_SendCmd(SH1106_CMD_INV_OFF); 
-	
 	// Set clock divide ratio and oscillator frequency
 	SH1106_SendDoubleCmd(SH1106_CMD_CLOCKDIV, 0x80);
-	
 	// Display ON
 	SH1106_SendCmd(SH1106_CMD_DISP_ON);
 }

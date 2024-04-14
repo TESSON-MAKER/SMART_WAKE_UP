@@ -8,9 +8,22 @@
 #include "stm32f7xx.h"
 #include "fonts.h"
 
+//Pins activated/desactivated
+#define SH1106_DC_LOW (GPIOA->BSRR=GPIO_BSRR_BR0)
+#define SH1106_DC_HIGH (GPIOA->BSRR=GPIO_BSRR_BS0)
+
+#define SH1106_CS_LOW (GPIOC->BSRR=GPIO_BSRR_BR0)
+#define SH1106_CS_HIGH (GPIOC->BSRR=GPIO_BSRR_BS0)
+
+#define SH1106_RST_LOW (GPIOC->BSRR=GPIO_BSRR_BR1)
+#define SH1106_RST_HIGH (GPIOC->BSRR=GPIO_BSRR_BS1)
+
+// SPI1_AF in alternate fonction
+#define SPI1_AF 0x05 
+
 // Screen dimensions
-#define SH1106_WIDTH (uint8_t) 128 
-#define SH1106_HEIGHT (uint8_t) 64
+#define SH1106_WIDTH     (uint8_t) 128 
+#define SH1106_HEIGHT    (uint8_t) 64
 #define SH1106_DATA_SIZE (uint8_t) 8
 
 // SH1106 command definitions 
@@ -43,16 +56,11 @@
 #define SH1106_CMD_END          (uint8_t) 0xEE // End
 #define SH1106_CMD_NOP          (uint8_t) 0xE3 // Nop
 
+#define XLevelL                 (uint8_t) 0x02
+#define	XLevelH                 (uint8_t) 0x10
+#define	YLevel                  (uint8_t) 0xB0
 
-
-
-#define SH1106_CMD_CHARGE    (uint8_t) 0x22 //  Dis-charge / Pre-charge Period
-#define SH1106_CMD_SCRL_HR   (uint8_t) 0x26 // Setup continuous horizontal scroll right
-#define SH1106_CMD_SCRL_HL   (uint8_t) 0x27 // Setup continuous horizontal scroll left
-#define SH1106_CMD_SCRL_VHR  (uint8_t) 0x29 // Setup continuous vertical and horizontal scroll right
-#define SH1106_CMD_SCRL_VHL  (uint8_t) 0x2A // Setup continuous vertical and horizontal scroll left
-#define SH1106_CMD_SCRL_STOP (uint8_t) 0x2E // Deactivate scroll
-#define SH1106_CMD_SCRL_ACT  (uint8_t) 0x2F // Activate scroll
+static uint8_t SH1106_Buffer[(SH1106_WIDTH*SH1106_HEIGHT)/SH1106_DATA_SIZE];
 
 void SH1106_Init(void);
 void SH1106_SetPixel(uint8_t pixel, int16_t x, int16_t y);

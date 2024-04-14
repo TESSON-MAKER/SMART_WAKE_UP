@@ -1,26 +1,6 @@
 #include "sh1106.h"
 #include "tim.h"
 
-#define SH1106_DC_LOW (GPIOA->BSRR=GPIO_BSRR_BR0)
-#define SH1106_DC_HIGH (GPIOA->BSRR=GPIO_BSRR_BS0)
-
-#define SH1106_CS_LOW (GPIOC->BSRR=GPIO_BSRR_BR0)
-#define SH1106_CS_HIGH (GPIOC->BSRR=GPIO_BSRR_BS0)
-
-#define SH1106_RST_LOW (GPIOC->BSRR=GPIO_BSRR_BR1)
-#define SH1106_RST_HIGH (GPIOC->BSRR=GPIO_BSRR_BS1)
-
-#define SPI1_AF 0x05
-
-enum SH1106_COMMANDS
-{
-	XLevelL = 0x02,
-	XLevelH = 0x10,
-	YLevel = 0xB0, 
-};
-
-static uint8_t SH1106_Buffer[(SH1106_WIDTH*SH1106_HEIGHT)/SH1106_DATA_SIZE];
-
 /*******************************************************************
  * @name       :SH1106_SpiInit
  * @date       :2024-01-03

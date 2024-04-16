@@ -48,10 +48,10 @@ int main(void)
 		BUTTONS_KeyState();
 		GPIO_DigitalWrite(GPIOB, 7, state);	
 		GPIO_DigitalWrite(GPIOB, 14, !state);	
-		/*
-		URM37_Measure(URM37_Temperature);
-		temp = URM37_GetTemperature();
-		*/
+		
+		/*URM37_Measure(URM37_Temperature);
+		temp = URM37_GetTemperature();*/
+		
 		switch (BUTTON_Switch)
 		{
 			case 0:

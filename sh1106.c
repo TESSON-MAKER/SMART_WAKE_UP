@@ -95,7 +95,7 @@ static void SH1106_Spi_Transmit(uint8_t data)
  * @parameters :cmd
  * @retvalue   :None
 ********************************************************************/ 
-static void SH1106_SendCmd(uint8_t cmd)
+void SH1106_SendCmd(uint8_t cmd)
 {
 	SH1106_DC_LOW; //Command mode
 	SH1106_CS_LOW;
@@ -179,7 +179,7 @@ void SH1106_SetPixel(uint8_t color, int16_t x, int16_t y)
 {
 	if (x >= SH1106_WIDTH || y >= SH1106_HEIGHT || x < 0 || y < 0) return;
 
-	uint16_t index = (y / 8) * 128 + x;
+	uint16_t index = (y / SH1106_DATA_SIZE) * SH1106_WIDTH + x;
 	uint8_t bitOffset = y % SH1106_DATA_SIZE;
 
 	if (color) SH1106_Buffer[index] |= (1 << bitOffset);

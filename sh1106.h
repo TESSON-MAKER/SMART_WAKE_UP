@@ -22,7 +22,7 @@
 #define SPI1_AF 0x05 
 
 // Screen dimensions
-#define SH1106_WIDTH     (uint8_t) 128
+#define SH1106_WIDTH     (uint8_t) 132
 #define SH1106_HEIGHT    (uint8_t) 64
 #define SH1106_DATA_SIZE (uint8_t) 8
 
@@ -62,7 +62,11 @@
 
 static uint8_t SH1106_Buffer[(SH1106_WIDTH*SH1106_HEIGHT)/SH1106_DATA_SIZE];
 
+void SH1106_ScrollRight(uint8_t start_row, uint8_t end_row);
+void SH1106_ScrollLeft(uint8_t start_row, uint8_t end_row);
+
 void SH1106_Init(void);
+void SH1106_SendCmd(uint8_t cmd);
 void SH1106_SetPixel(uint8_t pixel, int16_t x, int16_t y);
 void SH1106_DrawCharacter(uint8_t color, int16_t x, int16_t y, const Font *font, uint8_t letterNumber);
 void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, const Font *font, const char *format, ...);

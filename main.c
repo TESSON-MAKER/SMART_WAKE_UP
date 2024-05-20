@@ -41,7 +41,6 @@ int main(void)
 	GPIO_PinMode(GPIOB, 7, OUTPUT);
 	GPIO_PinMode(GPIOB, 14, OUTPUT);
 	
-	
 	while (1) 
 	{
 		SH1106_ClearBuffer();
@@ -96,14 +95,12 @@ static void MAIN_DisplayDate(void)
 	DS3231_Year = DS3231_BCD_DEC(data[6]);
 	DS3231_Century = DS3231_BCD_DEC(data[5] & 0x80);
 	
-	//keyboard();
-	
 	SH1106_FontPrint(1, 0, 0, &Arial12x12, "Temp: %.1f degrees", temp);
 	SH1106_FontPrint(1, 7, 13, &Arial28x28, "%02d:%02d:%02d", DS3231_Hour, DS3231_Minute, DS3231_Second);
 	SH1106_FontPrint(1, 0, 39, &Arial12x12, "%s,", days[DS3231_DayWeek]);
 	SH1106_FontPrint(1, 0, 52, &Arial12x12, "%s %d, 2%d%02d", months[DS3231_Month], DS3231_DayMonth, DS3231_Century, DS3231_Year);
-	SH1106_DrawLine(1, 0, 37, 128, 37);
-	SH1106_DrawLine(1, 0, 12, 128, 12);
+	SH1106_DrawLine(1, 0, 37, 131, 37);
+	SH1106_DrawLine(1, 0, 12, 131, 12);
 }
 
 static void handling(int8_t* data, const char* title, int max, int min)

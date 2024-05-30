@@ -5,7 +5,7 @@
 #include "gpio.h"
 #include "urm37.h"
 
-const char *days[] = {"NA", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}; //
+const char *days[] = {"NA", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}; 
 const char *months[] = {"NA", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
 static int8_t DS3231_Second = 0;
@@ -40,6 +40,13 @@ int main(void)
 	
 	GPIO_PinMode(GPIOB, 7, OUTPUT);
 	GPIO_PinMode(GPIOB, 14, OUTPUT);
+	
+	/*SH1106_SendCmd(0x26);
+	SH1106_SendCmd(0x00);
+	SH1106_SendCmd(0x00);
+	SH1106_SendCmd(0x00);
+	SH1106_SendCmd(0x03);
+	SH1106_SendCmd(0x2f);*/
 	
 	while (1) 
 	{

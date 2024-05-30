@@ -19,7 +19,7 @@
 #define SH1106_RST_HIGH (GPIOC->BSRR=GPIO_BSRR_BS1)
 
 // SPI1_AF in alternate fonction
-#define SPI1_AF 0x05 
+#define SH1106_SPI1_AF 0x05 
 
 // Screen dimensions
 #define SH1106_WIDTH     (uint8_t) 132
@@ -61,9 +61,6 @@
 #define	YLevel                  (uint8_t) 0xB0
 
 static uint8_t SH1106_Buffer[(SH1106_WIDTH*SH1106_HEIGHT)/SH1106_DATA_SIZE];
-
-void SH1106_ScrollRight(uint8_t start_row, uint8_t end_row);
-void SH1106_ScrollLeft(uint8_t start_row, uint8_t end_row);
 
 void SH1106_Init(void);
 void SH1106_SendCmd(uint8_t cmd);

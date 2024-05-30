@@ -33,8 +33,8 @@ static void SH1106_SpiInit(void)
 	GPIOA->MODER |= GPIO_MODER_MODER7_1;
 	GPIOA->MODER &= ~GPIO_MODER_MODER7_0;
 
-	GPIOA->AFR[0] |= SPI1_AF << GPIO_AFRL_AFRL5_Pos;
-	GPIOA->AFR[0] |= SPI1_AF << GPIO_AFRL_AFRL7_Pos;
+	GPIOA->AFR[0] |= SH1106_SPI1_AF << GPIO_AFRL_AFRL5_Pos;
+	GPIOA->AFR[0] |= SH1106_SPI1_AF << GPIO_AFRL_AFRL7_Pos;
 
 	//Enable clock access to SPI1 module
 	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
@@ -62,19 +62,19 @@ static void SH1106_SpiInit(void)
 }
 
 /*******************************************************************
- * @name       :SH1106_Spi_Transmit
- * @date       :2024-01-03
+ * @name       :SH1106_SpiTransmit
+ * @date       :2024-05-26
  * @function   :Send with spi
  * @parameters :data
  * @retvalue   :None
-********************************************************************/ 
-static void SH1106_Spi_Transmit(uint8_t data)
+********************************************************************/
+static void SH1106_SpiTransmit(uint8_t msg)
 {
 	//Wait until TXE is set
 	while(!(SPI1->SR & (SPI_SR_TXE)));
 
 	//Write the data to the data register
-	*(volatile uint8_t*) & SPI1->DR = data;
+	*(volatile uint8_t*) & SPI1->DR = msg;
 			
 	//Wait until TXE is set
 	while(!(SPI1->SR & (SPI_SR_TXE)));
@@ -99,7 +99,7 @@ void SH1106_SendCmd(uint8_t cmd)
 {
 	SH1106_DC_LOW; //Command mode
 	SH1106_CS_LOW;
-	SH1106_Spi_Transmit(cmd);
+	SH1106_SpiTransmit(cmd);
 	SH1106_CS_HIGH;
 }
 
@@ -120,14 +120,14 @@ static void SH1106_SendDoubleCmd(uint8_t cmd1, uint8_t cmd2)
  * @name       :SH1106_SendData
  * @date       :2024-01-03
  * @function   :Send data
- * @parameters :dat
+ * @parameters :data
  * @retvalue   :None
 ********************************************************************/ 
-static void SH1106_SendData(uint8_t dat)
+static void SH1106_SendData(uint8_t data)
 {
 	SH1106_DC_HIGH; //Data mode
 	SH1106_CS_LOW;
-	SH1106_Spi_Transmit(dat);
+	SH1106_SpiTransmit(data);
 	SH1106_CS_HIGH;
 }
 
@@ -324,7 +324,7 @@ void SH1106_DrawRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uin
  * @function   :Draw rectangle
  * @parameters :color, x, y, w, h
  * @retvalue   :None
-********************************************************************/ 
+********************************************************************/
 void SH1106_DrawFilledRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	//Check input parameters

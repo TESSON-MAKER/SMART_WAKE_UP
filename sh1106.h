@@ -57,8 +57,8 @@
 #define SH1106_CMD_NOP          (uint8_t) 0xE3 // Nop
 
 #define XLevelL                 (uint8_t) 0x02
-#define	XLevelH                 (uint8_t) 0x10
-#define	YLevel                  (uint8_t) 0xB0
+#define XLevelH                 (uint8_t) 0x10
+#define YLevel                  (uint8_t) 0xB0
 
 static uint8_t SH1106_Buffer[(SH1106_WIDTH*SH1106_HEIGHT)/SH1106_DATA_SIZE];
 

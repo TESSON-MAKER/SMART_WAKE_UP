@@ -69,7 +69,6 @@ static void ST7920_SpiTransmit(uint8_t msg)
 	//Wait until TXE is set
 	while(!(SPI1->SR & (SPI_SR_TXE)));
 
-	
 	//Wait for BUSY flag to reset
 	while((SPI1->SR & (SPI_SR_BSY)));
 
@@ -171,7 +170,7 @@ void ST7920_GraphicMode(int enable)
 
 /*******************************************************************
  * @name       :ST7920_SendBuffer
- * @date       :2024-05-26
+ * @date       :2024-06-01
  * @function   :Select graphic mode
  * @parameters :enable (1 or 0)
  * @retvalue   :None
@@ -193,47 +192,24 @@ void ST7920_SendBuffer(void)
 	}
 }
 
-void ST7920_Clear(void)
+/*******************************************************************
+ * @name       : ST7920_SetPixel
+ * @date       : 2024-06-01
+ * @function   : Draw a character at specified position
+ * @parameters : color, x, y, font, letterNumberAscii
+ * @retvalue   : None
+********************************************************************/
+void ST7920_SetPixel(uint8_t color, int16_t x, int16_t y) 
 {
-	if (Graphic_Check == 1)  // if the graphic mode is set
+	if (x >= 0 && x < ST7920_WIDTH && y >= 0 && y < ST7920_HEIGHT) 
 	{
-		uint8_t x, y;
-		for(y = 0; y < 64; y++)
-		{
-			if(y < 32)
-			{
-				ST7920_SendCmd(0x80 | y);
-				ST7920_SendCmd(0x80);
-			}
-			else
-			{
-				ST7920_SendCmd(0x80 | (y-32));
-				ST7920_SendCmd(0x88);
-			}
-			for(x = 0; x < 8; x++)
-			{
-				ST7920_SendData(0);
-				ST7920_SendData(0);
-			}
-		}
-	}
+		uint16_t index = y * (ST7920_WIDTH / ST7920_DATA_SIZE) + (x / ST7920_DATA_SIZE);
+		uint8_t bitOffset = 0x80u >> (x % ST7920_DATA_SIZE);
 
-	else
-	{
-		ST7920_SendCmd(0x01);   // clear the display using command
-		TIM_Wait(20); // TIM_Wait>1.6 ms
+		if (color) ST7920_Buffer[index] |= bitOffset;
+		else ST7920_Buffer[index] &= ~bitOffset;
 	}
 }
-
-void SetPixel(uint8_t color, int16_t x, int16_t y) 
-{
-    if (x < numCols && y < numRows && x >= 0 && y >= 0) 
-	{
-        if (color == 1) GLCD_Buffer[y * (numCols/8) + (x/8)] |= 0x80u >> (x%8);
-        else GLCD_Buffer[y * (numCols/8) + (x/8)] &= ~(0x80u >> (x%8));
-    }
-}
-
 
 /*******************************************************************
  * @name       : ST7920_DrawCharacter

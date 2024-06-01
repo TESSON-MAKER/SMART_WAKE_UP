@@ -9,11 +9,11 @@
 #include "fonts.h"
 
 //Pins activated/desactivated
-#define ST7920_CS_LOW (GPIOA->BSRR=GPIO_BSRR_BR0)
-#define ST7920_CS_HIGH (GPIOA->BSRR=GPIO_BSRR_BS0)
+#define ST7920_CS_LOW (GPIOA->BSRR = GPIO_BSRR_BR0)
+#define ST7920_CS_HIGH (GPIOA->BSRR = GPIO_BSRR_BS0)
 
-#define ST7920_RST_LOW (GPIOA->BSRR=GPIO_BSRR_BR1)
-#define ST7920_RST_HIGH (GPIOA->BSRR=GPIO_BSRR_BS1)
+#define ST7920_RST_LOW (GPIOA->BSRR = GPIO_BSRR_BR1)
+#define ST7920_RST_HIGH (GPIOA->BSRR = GPIO_BSRR_BS1)
 
 // SPI1_AF in alternate fonction
 #define ST7920_SPI1_AF 0x05 
@@ -29,6 +29,8 @@ static uint8_t Graphic_Check = 0;
 #define ST7920_CMD              (uint8_t) 0xF8 // Command mode
 #define ST7920_DATA             (uint8_t) 0xFA // Data mode
 #define ST7920_FOUR_STRONG_BITS (uint8_t) 0xF0 // Four strong bits
+
+// Basic commands
 #define ST7920_CMD_LCD_CLS      (uint8_t) 0x01 // Clear LCD screen
 #define ST7920_CMD_HOME         (uint8_t) 0x02 // Return cursor to home position (0,0)
 #define ST7920_CMD_ADDRINC      (uint8_t) 0x06 // Increment cursor address after writing each character
@@ -43,13 +45,31 @@ static uint8_t Graphic_Check = 0;
 #define ST7920_CMD_STANDBY      (uint8_t) 0x01 // Put display in standby mode
 #define ST7920_CMD_SCROLL       (uint8_t) 0x03 // Enable scrolling
 #define ST7920_CMD_SCROLLADDR   (uint8_t) 0x40 // Start address of scrolling area
+
+// Cursor position commands
 #define ST7920_CMD_ADDR         (uint8_t) 0x80 // Address of cursor position
 #define ST7920_CMD_LINE0        (uint8_t) 0x80 // Set cursor to first line
 #define ST7920_CMD_LINE1        (uint8_t) 0x90 // Set cursor to second line
 #define ST7920_CMD_LINE2        (uint8_t) 0x88 // Set cursor to third line
 #define ST7920_CMD_LINE3        (uint8_t) 0x98 // Set cursor to fourth line
 
-static uint8_t ST7920_Buffer[(ST7920_WIDTH*ST7920_HEIGHT)/ST7920_DATA_SIZE];
+// Extended commands
+#define ST7920_EXT_BASIC        (uint8_t) 0x30 // Set to basic instruction set
+#define ST7920_EXT_EXTEND       (uint8_t) 0x34 // Set to extended instruction set
+#define ST7920_EXT_GFXMODE      (uint8_t) 0x36 // Set to graphic display mode
+#define ST7920_EXT_TXTMODE      (uint8_t) 0x34 // Set to text display mode
+#define ST7920_EXT_SCROLLADDR   (uint8_t) 0x40 // Set scroll address
+#define ST7920_EXT_ADDR         (uint8_t) 0x80 // Set DDRAM address
+#define ST7920_EXT_GFX_ADDR     (uint8_t) 0x80 // Set GDRAM address
+
+// ST7920 reverse display command definitions
+#define ST7920_CMD_REVERSE_LINE0 (uint8_t) 0x24 // Reverse display of the first line
+#define ST7920_CMD_REVERSE_LINE1 (uint8_t) 0x25 // Reverse display of the second line
+#define ST7920_CMD_REVERSE_LINE2 (uint8_t) 0x26 // Reverse display of the third line
+#define ST7920_CMD_REVERSE_LINE3 (uint8_t) 0x27 // Reverse display of the fourth line
+
+// Buffer for display data
+static uint8_t ST7920_Buffer[(ST7920_WIDTH * ST7920_HEIGHT) / ST7920_DATA_SIZE];
 
 void ST7920_Init(void);
 void ST7920_SetPixel(uint8_t pixel, int16_t x, int16_t y);

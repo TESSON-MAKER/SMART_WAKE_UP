@@ -45,8 +45,7 @@ static void SH1106_SpiInit(void)
 	//Set mode to MASTER
 	SPI1->CR1 |= SPI_CR1_MSTR;
 
-	//Select software slave management by
-	//setting SSM=1 and SSI=1
+	//Select software slave management by setting SSM=1 and SSI=1
 	SPI1->CR1 |= SPI_CR1_SSM;
 	SPI1->CR1 |= SPI_CR1_SSI;
 
@@ -79,7 +78,6 @@ static void SH1106_SpiTransmit(uint8_t msg)
 	//Wait until TXE is set
 	while(!(SPI1->SR & (SPI_SR_TXE)));
 
-	
 	//Wait for BUSY flag to reset
 	while((SPI1->SR & (SPI_SR_BSY)));
 

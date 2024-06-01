@@ -22,7 +22,7 @@
 #define SH1106_SPI1_AF 0x05 
 
 // Screen dimensions
-#define SH1106_WIDTH     (uint8_t) 132
+#define SH1106_WIDTH     (uint16_t) 132
 #define SH1106_HEIGHT    (uint8_t) 64
 #define SH1106_DATA_SIZE (uint8_t) 8
 

@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "st7920.h"
 #include "tim.h"
 

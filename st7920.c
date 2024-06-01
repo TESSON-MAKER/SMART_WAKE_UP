@@ -116,27 +116,27 @@ static void ST7920_SendData (uint8_t data)
 ********************************************************************/ 
 void ST7920_SendString(int row, int col, char* string)
 {
-    switch (row)
-    {
-        case 0:
-            col |= ST7920_CMD_LINE0;
-            break;
-        case 1:
-            col |= ST7920_CMD_LINE1;
-            break;
-        case 2:
-            col |= ST7920_CMD_LINE2;
-            break;
-        case 3:
-            col |= ST7920_CMD_LINE3;
-            break;
-        default:
-            col |= ST7920_CMD_LINE0;
-            break;
-    }
-		
-    ST7920_SendCmd(col);
-    while (*string) ST7920_SendData(*string++);
+	switch (row)
+	{
+		case 0:
+			col |= ST7920_CMD_LINE0;
+			break;
+		case 1:
+			col |= ST7920_CMD_LINE1;
+			break;
+		case 2:
+			col |= ST7920_CMD_LINE2;
+			break;
+		case 3:
+			col |= ST7920_CMD_LINE3;
+			break;
+		default:
+			col |= ST7920_CMD_LINE0;
+			break;
+	}
+
+	ST7920_SendCmd(col);
+	while (*string) ST7920_SendData(*string++);
 }
 
 /*******************************************************************
@@ -457,6 +457,13 @@ void ST7920_ClearBuffer(void)
 		ST7920_Buffer[i] = 0;
 }
 
+/*******************************************************************
+ * @name       :ST7920_Init
+ * @date       :2024-01-03
+ * @function   :Initialization of the component
+ * @parameters :None
+ * @retvalue   :None
+********************************************************************/ 
 void ST7920_Init(void)
 {
 	// Wait 100ms

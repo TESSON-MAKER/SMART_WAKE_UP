@@ -50,11 +50,11 @@ static void SH1106_SpiInit(void)
 	SPI1->CR1 |= SPI_CR1_SSI;
 
 	//Set SPI mode to be MODE1 (CPHA0 CPOL0)
-	SPI1->CR1 &= ~SPI_CR1_CPHA;
+	SPI1->CR1 |= SPI_CR1_CPHA;
 	SPI1->CR1 &= ~SPI_CR1_CPOL;
 
 	//Set the frequency of SPI to 500kHz
-	SPI1->CR1 |= SPI_CR1_BR_1;
+	SPI1->CR1 |= SPI_CR1_BR_2;
 
 	//Enable SPI module
 	SPI1->CR1 |= SPI_CR1_SPE;

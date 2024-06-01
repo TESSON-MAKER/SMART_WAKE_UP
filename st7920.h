@@ -9,11 +9,11 @@
 #include "fonts.h"
 
 //Pins activated/desactivated
-#define ST7920_CS_LOW (GPIOA->BSRR = GPIO_BSRR_BR0)
-#define ST7920_CS_HIGH (GPIOA->BSRR = GPIO_BSRR_BS0)
+#define ST7920_CS_LOW (GPIOC->BSRR=GPIO_BSRR_BR1)
+#define ST7920_CS_HIGH (GPIOC->BSRR=GPIO_BSRR_BS1)
 
-#define ST7920_RST_LOW (GPIOA->BSRR = GPIO_BSRR_BR1)
-#define ST7920_RST_HIGH (GPIOA->BSRR = GPIO_BSRR_BS1)
+#define ST7920_RST_LOW (GPIOC->BSRR=GPIO_BSRR_BR0)
+#define ST7920_RST_HIGH (GPIOC->BSRR=GPIO_BSRR_BS0)
 
 // SPI1_AF in alternate fonction
 #define ST7920_SPI1_AF 0x05 
@@ -72,6 +72,7 @@ static uint8_t Graphic_Check = 0;
 static uint8_t ST7920_Buffer[(ST7920_WIDTH * ST7920_HEIGHT) / ST7920_DATA_SIZE];
 
 void ST7920_Init(void);
+void ST7920_GraphicMode(int enable);
 void ST7920_SetPixel(uint8_t pixel, int16_t x, int16_t y);
 void ST7920_DrawCharacter(uint8_t color, int16_t x, int16_t y, const Font *font, uint8_t letterNumber);
 void ST7920_FontPrint(uint8_t color, int16_t x, int16_t y, const Font *font, const char *format, ...);

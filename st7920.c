@@ -34,8 +34,7 @@ static void ST7920_SpiInit(void)
 	//Set mode to MASTER
 	SPI1->CR1 |= SPI_CR1_MSTR;
 
-	//Select software slave management by
-	//setting SSM=1 and SSI=1
+	//Select software slave management by setting SSM=1 and SSI=1
 	SPI1->CR1 |= SPI_CR1_SSM;
 	SPI1->CR1 |= SPI_CR1_SSI;
 
@@ -460,31 +459,44 @@ void ST7920_ClearBuffer(void)
 
 void ST7920_Init(void)
 {
+	// Wait 100ms
 	TIM_Wait(100);
+	// Initialize SPI link
 	ST7920_SpiInit();
-
+	// Reset LOW
 	ST7920_RST_LOW;
+	// Wait 50ms
 	TIM_Wait(50);
+	// Reset HIGH
 	ST7920_RST_HIGH;
+	// Wait 100ms
 	TIM_Wait(100);
-	ST7920_SendCmd(0x30);  		// 8bit mode
-	TIM_WaitMicros(110);  				//  >100us TIM_Wait
-
-	ST7920_SendCmd(0x30);  		// 8bit mode
-	TIM_WaitMicros(40);  				// >37us TIM_Wait
-
-	ST7920_SendCmd(0x08);  // D=0, C=0, B=0
-	TIM_WaitMicros(110);  // >100us TIM_Wait
-
-	ST7920_SendCmd(0x01);  // clear screen
-	TIM_Wait(12);  // >10 ms TIM_Wait
-
-	ST7920_SendCmd(0x06);  // cursor increment right no shift
-	TIM_Wait(1);  // 1ms TIM_Wait
-
-	ST7920_SendCmd(0x0C);  // D=1, C=0, B=0
-	TIM_Wait(1);  // 1ms TIM_Wait
-
-	ST7920_SendCmd(0x02);  // return to home
-	TIM_Wait(1);  // 1ms TIM_Wait
+	// 8bit mode
+	ST7920_SendCmd(ST7920_CMD_BASIC);
+	// Wait >100us
+	TIM_WaitMicros(110);
+	// 8bit mode
+	ST7920_SendCmd(ST7920_CMD_BASIC);
+	// Wait >37us
+	TIM_WaitMicros(40);
+	// D=0, C=0, B=0 (Display OFF)
+	ST7920_SendCmd(ST7920_CMD_DISPLAYOFF);
+	// Wait >100us
+	TIM_WaitMicros(110);
+	// Clear screen
+	ST7920_SendCmd(ST7920_CMD_LCD_CLS);
+	// Wait >10ms
+	TIM_Wait(12);
+	// Cursor increment right, no shift
+	ST7920_SendCmd(ST7920_CMD_ADDRINC);
+	// Wait 1ms
+	TIM_Wait(1);
+	// D=1, C=0, B=0 (Display ON)
+	ST7920_SendCmd(ST7920_CMD_DISPLAYON);
+	// Wait 1ms
+	TIM_Wait(1);
+	// Return to home
+	ST7920_SendCmd(ST7920_CMD_HOME);
+	// Wait 1ms
+	TIM_Wait(1);
 }

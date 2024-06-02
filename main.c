@@ -1,4 +1,4 @@
-#include "st7920.h".h"
+#include "SH1106.h".h"
 #include "tim.h"
 #include "buttons.h"
 #include "ds3231.h"
@@ -31,9 +31,9 @@ static void MAIN_Initialization(void);
 
 int main(void) 
 {
-	ST7920_Init();
-	ST7920_ClearBuffer();
-	ST7920_GraphicMode(1);
+	SH1106_Init();
+	SH1106_ClearBuffer();
+	//SH1106_GraphicMode(1);
 	BUTTONS_Init();
 	DS3231_Init();
 	URM37_Init();
@@ -45,7 +45,7 @@ int main(void)
 	
 	while (1) 
 	{
-		ST7920_ClearBuffer();
+		SH1106_ClearBuffer();
 		BUTTONS_KeyState();
 		GPIO_DigitalWrite(GPIOB, 7, state);	
 		GPIO_DigitalWrite(GPIOB, 14, !state);	
@@ -64,7 +64,7 @@ int main(void)
 		}
 		state ^= 1;
 		
-		ST7920_SendBuffer();
+		SH1106_SendBuffer();
 	}
 }
 
@@ -97,12 +97,12 @@ static void MAIN_DisplayDate(void)
 	DS3231_Year = DS3231_BCD_DEC(data[6]);
 	DS3231_Century = DS3231_BCD_DEC(data[5] & 0x80);
 	
-	ST7920_FontPrint(1, 0, 0, &Arial12x12, "Temp: %.1f degrees", temp);
-	ST7920_FontPrint(1, 7, 13, &Arial28x28, "%02d:%02d:%02d", DS3231_Hour, DS3231_Minute, DS3231_Second);
-	ST7920_FontPrint(1, 0, 39, &Arial12x12, "%s,", days[DS3231_DayWeek]);
-	ST7920_FontPrint(1, 0, 52, &Arial12x12, "%s %d, 2%d%02d", months[DS3231_Month], DS3231_DayMonth, DS3231_Century, DS3231_Year);
-	ST7920_DrawLine(1, 0, 37, 131, 37);
-	ST7920_DrawLine(1, 0, 12, 131, 12);
+	SH1106_FontPrint(1, 0, 0, &Arial12x12, "Temp: %.1f degrees", temp);
+	SH1106_FontPrint(1, 7, 13, &Arial28x28, "%02d:%02d:%02d", DS3231_Hour, DS3231_Minute, DS3231_Second);
+	SH1106_FontPrint(1, 0, 39, &Arial12x12, "%s,", days[DS3231_DayWeek]);
+	SH1106_FontPrint(1, 0, 52, &Arial12x12, "%s %d, 2%d%02d", months[DS3231_Month], DS3231_DayMonth, DS3231_Century, DS3231_Year);
+	SH1106_DrawLine(1, 0, 37, 131, 37);
+	SH1106_DrawLine(1, 0, 12, 131, 12);
 }
 
 static void handling(int8_t* data, const char* title, int max, int min)
@@ -121,7 +121,7 @@ static void handling(int8_t* data, const char* title, int max, int min)
 	if (*data > max) *data = min;
 	if (*data < min) *data = max;
 
-	ST7920_FontPrint(1, 0, 13, &Arial12x12, "Setting %s : %d", title, *data);
+	SH1106_FontPrint(1, 0, 13, &Arial12x12, "Setting %s : %d", title, *data);
 }
 
 static void handlingDay()
@@ -150,7 +150,7 @@ static void handlingDay()
 	if (DS3231_Month == 2 && isLeapYear && DS3231_DayMonth < 0) DS3231_DayMonth = 29;
 	if (DS3231_Month == 2 && !isLeapYear && DS3231_DayMonth < 0) DS3231_DayMonth = 28;
 
-	ST7920_FontPrint(1, 0, 13, &Arial12x12, "Setting day : %d", DS3231_DayMonth);
+	SH1106_FontPrint(1, 0, 13, &Arial12x12, "Setting day : %d", DS3231_DayMonth);
 }
 
 static void handlingMonth()
@@ -176,7 +176,7 @@ static void handlingMonth()
 	if (DS3231_Month == 2 && isLeapYear && DS3231_DayMonth > 29) DS3231_DayMonth = 29;                                 //Cas de Fevrier dans les annees bissextiles (29 jours)
 	if (DS3231_Month == 2 && !isLeapYear && DS3231_DayMonth > 28) DS3231_DayMonth = 28;                                //Cas de Fevrier hors annees bissextiles (28 jours)
 
-	ST7920_FontPrint(1, 0, 13, &Arial12x12, "Setting month : %d", DS3231_Month);
+	SH1106_FontPrint(1, 0, 13, &Arial12x12, "Setting month : %d", DS3231_Month);
 }
 
 static void handlingYear()
@@ -200,7 +200,7 @@ static void handlingYear()
 	if (DS3231_Month == 2 && isLeapYear && DS3231_DayMonth > 29) DS3231_DayMonth = 29;           // Cas de Fevrier dans les annees bissextiles (29 jours)
 	if (DS3231_Month == 2 && !isLeapYear && DS3231_DayMonth > 28) DS3231_DayMonth = 28;          // Cas de Fevrier hors annees bissextiles (28 jours)
 
-	ST7920_FontPrint(1, 0, 13, &Arial12x12, "Setting year : %d", DS3231_Year);
+	SH1106_FontPrint(1, 0, 13, &Arial12x12, "Setting year : %d", DS3231_Year);
 }
 
 static void MAIN_Settings(void)

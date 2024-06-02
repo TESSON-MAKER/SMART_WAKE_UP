@@ -159,7 +159,7 @@ void ST7920_SendString(int row, int col, char* string)
 ********************************************************************/ 
 void ST7920_GraphicMode(int enable)
 {
-	if (enable == 1)
+	if (enable)
 	{
 		ST7920_SendCmd(ST7920_CMD_BASIC);
 		TIM_Wait(1);

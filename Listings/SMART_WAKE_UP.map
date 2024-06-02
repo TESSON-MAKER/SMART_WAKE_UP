@@ -1494,7 +1494,7 @@ Image Symbol Table
     ST7920_DrawLine                          0x08002289   Thumb Code   292  st7920.o(.text.ST7920_DrawLine)
     ST7920_DrawStr                           0x080023b1   Thumb Code   198  st7920.o(.text.ST7920_DrawStr)
     ST7920_FontPrint                         0x08002479   Thumb Code    72  st7920.o(.text.ST7920_FontPrint)
-    ST7920_GraphicMode                       0x080024c1   Thumb Code    96  st7920.o(.text.ST7920_GraphicMode)
+    ST7920_GraphicMode                       0x080024c1   Thumb Code    94  st7920.o(.text.ST7920_GraphicMode)
     ST7920_Init                              0x08002521   Thumb Code   146  st7920.o(.text.ST7920_Init)
     ST7920_SendBuffer                        0x080025b9   Thumb Code   202  st7920.o(.text.ST7920_SendBuffer)
     ST7920_SetPixel                          0x08002709   Thumb Code   160  st7920.o(.text.ST7920_SetPixel)
@@ -1709,7 +1709,8 @@ Memory Map of the image
     0x080023b0   0x080023b0   0x000000c6   Code   RO          133    .text.ST7920_DrawStr  st7920.o
     0x08002476   0x08002476   0x00000002   PAD
     0x08002478   0x08002478   0x00000048   Code   RO          135    .text.ST7920_FontPrint  st7920.o
-    0x080024c0   0x080024c0   0x00000060   Code   RO          125    .text.ST7920_GraphicMode  st7920.o
+    0x080024c0   0x080024c0   0x0000005e   Code   RO          125    .text.ST7920_GraphicMode  st7920.o
+    0x0800251e   0x0800251e   0x00000002   PAD
     0x08002520   0x08002520   0x00000092   Code   RO          149    .text.ST7920_Init   st7920.o
     0x080025b2   0x080025b2   0x00000006   PAD
     0x080025b8   0x080025b8   0x000000ca   Code   RO          127    .text.ST7920_SendBuffer  st7920.o
@@ -1841,7 +1842,7 @@ Image component sizes
          0          0      10860          0          0        776   fonts_arial28x28.o
        540          0          0          0          0       3056   gpio.o
       3600          8        287         87         16       4238   main.o
-      1986          0          0          0       1025       8270   st7920.o
+      1984          0          0          0       1025       8270   st7920.o
         64         26        504          0       1536        876   startup_stm32f767xx.o
         18          0          0          4          0       3356   system_stm32f7xx.o
        206          0          0          0          0       1017   tim.o
@@ -1850,7 +1851,7 @@ Image component sizes
     ----------------------------------------------------------------------
       8986         34      14096         92       2608      41179   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-       106          0          1          1          7          0   (incl. Padding)
+       108          0          1          1          7          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 

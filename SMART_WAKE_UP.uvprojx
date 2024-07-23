@@ -425,14 +425,14 @@
               <FilePath>.\ds3231.c</FilePath>
             </File>
             <File>
-              <FileName>sh1106.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\sh1106.c</FilePath>
-            </File>
-            <File>
               <FileName>buttons.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\buttons.c</FilePath>
+            </File>
+            <File>
+              <FileName>sh1106.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>sh1106.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -475,14 +475,14 @@
               <FilePath>.\ds3231.h</FilePath>
             </File>
             <File>
-              <FileName>sh1106.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\sh1106.h</FilePath>
-            </File>
-            <File>
               <FileName>buttons.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\buttons.h</FilePath>
+            </File>
+            <File>
+              <FileName>sh1106.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>sh1106.h</FilePath>
             </File>
           </Files>
         </Group>

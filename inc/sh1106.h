@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "stm32f7xx.h"
-#include "fonts.h"
+#include "../fonts/fonts.h"
 
 //Pins activated/desactivated
 #define SH1106_DC_LOW (GPIOA->BSRR=GPIO_BSRR_BR0)

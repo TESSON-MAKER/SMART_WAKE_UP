@@ -1,4 +1,4 @@
-#include "buttons.h"
+#include "../inc/buttons.h"
 
 // Delay values for button press detection
 #define TIM2_PRESCALER_VALUE 16000

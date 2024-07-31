@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "stm32f7xx.h"
-#include "fonts.h"
+#include "../fonts/fonts.h"
 
 //Pins activated/desactivated
 #define ST7920_CS_LOW (GPIOC->BSRR=GPIO_BSRR_BR1)

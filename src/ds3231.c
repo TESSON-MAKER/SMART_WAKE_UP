@@ -1,4 +1,4 @@
-#include "ds3231.h"
+#include "../inc/ds3231.h"
 
 #define AF4 0x04
 #define TIMEOUT_MAX 300

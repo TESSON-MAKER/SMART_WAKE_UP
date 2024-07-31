@@ -1,14 +1,14 @@
-#include "sh1106.h"
-#include "tim.h"
+#include "../inc/st7920.h"
+#include "../inc/tim.h"
 
 /*******************************************************************
- * @name       :SH1106_SpiInit
+ * @name       :ST7920_SpiInit
  * @date       :2024-01-03
  * @function   :SPI Initialization
  * @parameters :None
  * @retvalue   :None
 ********************************************************************/ 
-static void SH1106_SpiInit(void)
+static void ST7920_SpiInit(void)
 {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; // enable clock for GPIOA
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN; // enable clock for GPIOC
@@ -33,8 +33,8 @@ static void SH1106_SpiInit(void)
 	GPIOA->MODER |= GPIO_MODER_MODER7_1;
 	GPIOA->MODER &= ~GPIO_MODER_MODER7_0;
 
-	GPIOA->AFR[0] |= SH1106_SPI1_AF << GPIO_AFRL_AFRL5_Pos;
-	GPIOA->AFR[0] |= SH1106_SPI1_AF << GPIO_AFRL_AFRL7_Pos;
+	GPIOA->AFR[0] |= ST7920_SPI1_AF << GPIO_AFRL_AFRL5_Pos;
+	GPIOA->AFR[0] |= ST7920_SPI1_AF << GPIO_AFRL_AFRL7_Pos;
 
 	//Enable clock access to SPI1 module
 	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
@@ -50,7 +50,7 @@ static void SH1106_SpiInit(void)
 	SPI1->CR1 |= SPI_CR1_SSI;
 
 	//Set SPI mode to be MODE1 (CPHA0 CPOL0)
-	SPI1->CR1 &= ~SPI_CR1_CPHA;
+	SPI1->CR1 |= SPI_CR1_CPHA;
 	SPI1->CR1 &= ~SPI_CR1_CPOL;
 
 	//Set the frequency of SPI to 500kHz
@@ -58,16 +58,16 @@ static void SH1106_SpiInit(void)
 
 	//Enable SPI module
 	SPI1->CR1 |= SPI_CR1_SPE;
-}
+}                                                  
 
 /*******************************************************************
- * @name       :SH1106_SpiTransmit
+ * @name       :ST7920_SpiTransmit
  * @date       :2024-05-26
  * @function   :Send with spi
  * @parameters :data
  * @retvalue   :None
 ********************************************************************/
-static void SH1106_SpiTransmit(uint8_t msg)
+static void ST7920_SpiTransmit(uint8_t msg)
 {
 	//Wait until TXE is set
 	while(!(SPI1->SR & (SPI_SR_TXE)));
@@ -87,111 +87,147 @@ static void SH1106_SpiTransmit(uint8_t msg)
 }
 
 /*******************************************************************
- * @name       :SH1106_SendCmd
- * @date       :2024-01-03
+ * @name       :ST7920_SendCmd
+ * @date       :2024-05-26
  * @function   :Send command
  * @parameters :cmd
  * @retvalue   :None
-********************************************************************/ 
-void SH1106_SendCmd(uint8_t cmd)
+********************************************************************/
+static void ST7920_SendCmd(uint8_t cmd)
 {
-	SH1106_DC_LOW; //Command mode
-	SH1106_CS_LOW;
-	SH1106_SpiTransmit(cmd);
-	SH1106_CS_HIGH;
+	ST7920_CS_HIGH;  
+	ST7920_SpiTransmit(ST7920_CMD);
+	ST7920_SpiTransmit(cmd & ST7920_FOUR_STRONG_BITS);
+	ST7920_SpiTransmit((cmd<<4) & ST7920_FOUR_STRONG_BITS);
+	ST7920_CS_LOW;  
 }
 
 /*******************************************************************
- * @name       :SH1106_SendDoubleCmd
- * @date       :2024-01-03
- * @function   :Send double command
- * @parameters :cmd1, cmd2
- * @retvalue   :None
-********************************************************************/ 
-static void SH1106_SendDoubleCmd(uint8_t cmd1, uint8_t cmd2)
-{
-	SH1106_SendCmd(cmd1);
-	SH1106_SendCmd(cmd2);
-}
-
-/*******************************************************************
- * @name       :SH1106_SendData
- * @date       :2024-01-03
+ * @name       :ST7920_SendData
+ * @date       :2024-05-26
  * @function   :Send data
  * @parameters :data
  * @retvalue   :None
-********************************************************************/ 
-static void SH1106_SendData(uint8_t data)
+********************************************************************/
+static void ST7920_SendData (uint8_t data)
 {
-	SH1106_DC_HIGH; //Data mode
-	SH1106_CS_LOW;
-	SH1106_SpiTransmit(data);
-	SH1106_CS_HIGH;
+	ST7920_CS_HIGH;  
+	ST7920_SpiTransmit(ST7920_DATA);
+	ST7920_SpiTransmit(data & ST7920_FOUR_STRONG_BITS);
+	ST7920_SpiTransmit((data<<4) & ST7920_FOUR_STRONG_BITS);
+	ST7920_CS_LOW;  
 }
 
 /*******************************************************************
- * @name       :SH1106_SendBuffer
- * @date       :2024-01-03
- * @function   :Send buffer
- * @parameters :None
+ * @name       :ST7920_SendString
+ * @date       :2024-05-26
+ * @function   :Send string
+ * @parameters :row, col, string
  * @retvalue   :None
 ********************************************************************/ 
-void SH1106_SendBuffer(void)
+void ST7920_SendString(int row, int col, char* string)
 {
-	for(int i=0; i<SH1106_DATA_SIZE; i++)  
-	{  
-		SH1106_SendCmd(YLevel+i);
-		SH1106_SendCmd(XLevelL);
-		SH1106_SendCmd(XLevelH);
-		for(int n=0; n<SH1106_WIDTH; n++)
+	switch (row)
+	{
+		case 0:
+			col |= ST7920_CMD_LINE0;
+			break;
+		case 1:
+			col |= ST7920_CMD_LINE1;
+			break;
+		case 2:
+			col |= ST7920_CMD_LINE2;
+			break;
+		case 3:
+			col |= ST7920_CMD_LINE3;
+			break;
+		default:
+			col |= ST7920_CMD_LINE0;
+			break;
+	}
+
+	ST7920_SendCmd(col);
+	while (*string) ST7920_SendData(*string++);
+}
+
+/*******************************************************************
+ * @name       :ST7920_GraphicMode
+ * @date       :2024-05-26
+ * @function   :Select graphic mode
+ * @parameters :enable (1 or 0)
+ * @retvalue   :None
+********************************************************************/ 
+void ST7920_GraphicMode(int enable)
+{
+	if (enable)
+	{
+		ST7920_SendCmd(ST7920_CMD_BASIC);
+		TIM_Wait(1);
+		ST7920_SendCmd(ST7920_CMD_EXTEND);
+		TIM_Wait(1);
+		ST7920_SendCmd(ST7920_CMD_GFXMODE);
+		TIM_Wait(1);
+		Graphic_Check = 1;
+	}
+	else 
+	{
+		ST7920_SendCmd(ST7920_CMD_BASIC);
+		TIM_Wait(1);
+		Graphic_Check = 0;
+	}
+}
+
+/*******************************************************************
+ * @name       :ST7920_SendBuffer
+ * @date       :2024-06-01
+ * @function   :Select graphic mode
+ * @parameters :enable (1 or 0)
+ * @retvalue   :None
+********************************************************************/ 
+void ST7920_SendBuffer(void)
+{
+	for (uint8_t y = 0; y < 64; y++)
+	{
+		uint8_t verticalCoord = (y < 32) ? y : y - 32;
+		uint8_t horizontalCmd = (y < 32) ? ST7920_CMD_LINE0 : ST7920_CMD_LINE2;
+
+		for (uint8_t x = 0; x < 8; x++)
 		{
-			SH1106_SendData(SH1106_Buffer[i*SH1106_WIDTH+n]); 
+			ST7920_SendCmd(ST7920_CMD_LINE0 | verticalCoord);
+			ST7920_SendCmd(horizontalCmd | x);
+			ST7920_SendData(ST7920_Buffer[2 * x + 16 * y]);
+			ST7920_SendData(ST7920_Buffer[2 * x + 1 + 16 * y]);
 		}
 	}
 }
 
 /*******************************************************************
- * @name       :SH1106_Reset
- * @date       :2024-01-03
- * @function   :Reset OLED screen
- * @parameters :None
- * @retvalue   :None
-********************************************************************/ 
-static void SH1106_Reset(void)
+ * @name       : ST7920_SetPixel
+ * @date       : 2024-06-01
+ * @function   : Draw a character at specified position
+ * @parameters : color, x, y, font, letterNumberAscii
+ * @retvalue   : None
+********************************************************************/
+void ST7920_SetPixel(uint8_t color, int16_t x, int16_t y) 
 {
-	SH1106_RST_HIGH;
-	TIM_Wait(100);
-	SH1106_RST_LOW;
-	TIM_Wait(100);
-	SH1106_RST_HIGH;
+	if (x >= 0 && x < ST7920_WIDTH && y >= 0 && y < ST7920_HEIGHT) 
+	{
+		uint16_t index = y * (ST7920_WIDTH / ST7920_DATA_SIZE) + (x / ST7920_DATA_SIZE);
+		uint8_t bitOffset = 0x80u >> (x % ST7920_DATA_SIZE);
+
+		if (color) ST7920_Buffer[index] |= bitOffset;
+		else ST7920_Buffer[index] &= ~bitOffset;
+	}
 }
 
 /*******************************************************************
- * @name       :SH1106_SetPixel
- * @date       :2024-01-03
- * @function   :Set pixel in buffer
- * @parameters :color, x, y
- * @retvalue   :None
-********************************************************************/ 
-void SH1106_SetPixel(uint8_t color, int16_t x, int16_t y) 
-{
-	if (x >= SH1106_WIDTH || y >= SH1106_HEIGHT || x < 0 || y < 0) return;
-
-	uint16_t index = (y / SH1106_DATA_SIZE) * SH1106_WIDTH + x;
-	uint8_t bitOffset = y % SH1106_DATA_SIZE;
-
-	if (color) SH1106_Buffer[index] |= (1 << bitOffset);
-	else SH1106_Buffer[index] &= ~(1 << bitOffset);
-}
-
-/*******************************************************************
- * @name       : SH1106_DrawCharacter
+ * @name       : ST7920_DrawCharacter
  * @date       : 2024-01-03
  * @function   : Draw a character at specified position
  * @parameters : color, x, y, font, letterNumberAscii
  * @retvalue   : None
 ********************************************************************/
-void SH1106_DrawCharacter(uint8_t color, int16_t x, int16_t y, const Font *font, uint8_t letterNumberAscii) 
+void ST7920_DrawCharacter(uint8_t color, int16_t x, int16_t y, const Font *font, uint8_t letterNumberAscii) 
 {
 	if (letterNumberAscii < font->asciiBegin || letterNumberAscii > font->asciiEnd) return;
 	
@@ -210,26 +246,26 @@ void SH1106_DrawCharacter(uint8_t color, int16_t x, int16_t y, const Font *font,
 				uint8_t pixel = (data >> bit) & 1;
 				int16_t a = x + column;
 				int16_t b = y + (bit + 8 * byteColumn);
-				if (pixel) SH1106_SetPixel(color, a, b);
+				if (pixel) ST7920_SetPixel(color, a, b);
 			}
 		}
 	}
 }
 
 /*******************************************************************
- * @name       : SH1106_DrawStr
+ * @name       : ST7920_DrawStr
  * @date       : 2024-01-03
  * @function   : Set pixel in buffer
  * @parameters : color, x, y, font, content
  * @retvalue   : None
 ********************************************************************/ 
-void SH1106_DrawStr(uint8_t color, int16_t x, int16_t y, const Font *font, const char *format)
+void ST7920_DrawStr(uint8_t color, int16_t x, int16_t y, const Font *font, const char *format)
 {
-	while (*format && x < SH1106_WIDTH && y < SH1106_HEIGHT) 
+	while (*format && x < ST7920_WIDTH && y < ST7920_HEIGHT) 
 	{
 		uint8_t currentChar = *format;
 
-		SH1106_DrawCharacter(color, x, y, font, currentChar);
+		ST7920_DrawCharacter(color, x, y, font, currentChar);
 
 		// Create a space between the letters
 		uint8_t letterNumber = currentChar - font->asciiOffset;
@@ -243,13 +279,13 @@ void SH1106_DrawStr(uint8_t color, int16_t x, int16_t y, const Font *font, const
 }
 
 /*******************************************************************
- * @name       : SH1106_FontPrint
+ * @name       : ST7920_FontPrint
  * @date       : 2024-01-03
  * @function   : Set pixel in buffer
  * @parameters : color, x, y, font, content
  * @retvalue   : None
 ********************************************************************/ 
-void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, const Font *font, const char *format, ...) 
+void ST7920_FontPrint(uint8_t color, int16_t x, int16_t y, const Font *font, const char *format, ...) 
 {
 	va_list args;
 	va_start(args, format);
@@ -257,17 +293,17 @@ void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, const Font *font, con
 	vsprintf(formatted_string, format, args);
 	va_end(args);
 
-	SH1106_DrawStr(color, x, y, font, formatted_string); 
+	ST7920_DrawStr(color, x, y, font, formatted_string); 
 }
 
 /*******************************************************************
- * @name       :SH1106_DrawLine
+ * @name       :ST7920_DrawLine
  * @date       :2024-01-03
  * @function   :Draw a line
  * @parameters :color, x0, y0, x1, y1
  * @retvalue   :None
 ********************************************************************/ 
-void SH1106_DrawLine(uint8_t color, uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) 
+void ST7920_DrawLine(uint8_t color, uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) 
 {
 	int dx = (x1 >= x0) ? x1 - x0 : x0 - x1;
 	int dy = (y1 >= y0) ? y1 - y0 : y0 - y1;
@@ -277,7 +313,7 @@ void SH1106_DrawLine(uint8_t color, uint8_t x0, uint8_t y0, uint8_t x1, uint8_t 
 
 	while(1)
 	{
-		SH1106_SetPixel(color, x0, y0);
+		ST7920_SetPixel(color, x0, y0);
 		if (x0 == x1 && y0 == y1) break;
 		int e2 = err + err;
 		if (e2 > -dy)
@@ -294,77 +330,77 @@ void SH1106_DrawLine(uint8_t color, uint8_t x0, uint8_t y0, uint8_t x1, uint8_t 
 }
 
 /*******************************************************************
- * @name       :SH1106_DrawRectangle
+ * @name       :ST7920_DrawRectangle
  * @date       :2024-01-03
  * @function   :Draw rectangle
  * @parameters :color, x, y, w, h
  * @retvalue   :None
 ********************************************************************/ 
-void SH1106_DrawRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+void ST7920_DrawRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	//Check input parameters
-	if (x >= SH1106_WIDTH || y >= SH1106_HEIGHT) return;
+	if (x >= ST7920_WIDTH || y >= ST7920_HEIGHT) return;
 
 	//Check width and height
-	if ((x + w) >= SH1106_WIDTH) w = SH1106_WIDTH - x;
-	if ((y + h) >= SH1106_HEIGHT) h = SH1106_HEIGHT - y;
+	if ((x + w) >= ST7920_WIDTH) w = ST7920_WIDTH - x;
+	if ((y + h) >= ST7920_HEIGHT) h = ST7920_HEIGHT - y;
 
 	//Draw 4 lines
-	SH1106_DrawLine(color, x, y, x + w, y);         //Top line
-	SH1106_DrawLine(color, x, y + h, x + w, y + h); //Bottom line
-	SH1106_DrawLine(color, x, y, x, y + h);         //Left line
-	SH1106_DrawLine(color, x + w, y, x + w, y + h); //Right line
+	ST7920_DrawLine(color, x, y, x + w, y);         //Top line
+	ST7920_DrawLine(color, x, y + h, x + w, y + h); //Bottom line
+	ST7920_DrawLine(color, x, y, x, y + h);         //Left line
+	ST7920_DrawLine(color, x + w, y, x + w, y + h); //Right line
 }
 
 /*******************************************************************
- * @name       :SH1106_DrawFilledRectangle
+ * @name       :ST7920_DrawFilledRectangle
  * @date       :2024-01-03
  * @function   :Draw rectangle
  * @parameters :color, x, y, w, h
  * @retvalue   :None
 ********************************************************************/
-void SH1106_DrawFilledRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+void ST7920_DrawFilledRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	//Check input parameters
-	if (x >= SH1106_WIDTH || y >= SH1106_HEIGHT) return;
+	if (x >= ST7920_WIDTH || y >= ST7920_HEIGHT) return;
 
 	//Check width and height
-	if ((x + w) >= SH1106_WIDTH) w = SH1106_WIDTH - x;
-	if ((y + h) >= SH1106_HEIGHT) h = SH1106_HEIGHT - y;
+	if ((x + w) >= ST7920_WIDTH) w = ST7920_WIDTH - x;
+	if ((y + h) >= ST7920_HEIGHT) h = ST7920_HEIGHT - y;
 
 	//Draw lines
 	for (int i = 0; i <= h; i++)
-		SH1106_DrawLine(color, x, y + i, x + w, y + i);
+		ST7920_DrawLine(color, x, y + i, x + w, y + i);
 }
 
 /*******************************************************************
- * @name       :SH1106_DrawCircle
+ * @name       :ST7920_DrawCircle
  * @date       :2024-01-03
  * @function   :Draw circle
  * @parameters :color, x0, y0, radius
  * @retvalue   :None
 ********************************************************************/ 
-void SH1106_DrawCircle(uint8_t color, uint8_t x0, uint8_t y0, uint8_t radius)
+void ST7920_DrawCircle(uint8_t color, uint8_t x0, uint8_t y0, uint8_t radius)
 {
 	int x = radius;
 	int y = 0;
 	int err = 0;
 
-	SH1106_SetPixel(color, x0, y0 + radius);
-	SH1106_SetPixel(color, x0, y0 - radius);
-	SH1106_SetPixel(color, x0 + radius, y0);
-	SH1106_SetPixel(color, x0 - radius, y0);
+	ST7920_SetPixel(color, x0, y0 + radius);
+	ST7920_SetPixel(color, x0, y0 - radius);
+	ST7920_SetPixel(color, x0 + radius, y0);
+	ST7920_SetPixel(color, x0 - radius, y0);
 
 	while (x >= y)
 	{
-		SH1106_SetPixel(color, x0 + x, y0 + y);
-		SH1106_SetPixel(color, x0 - x, y0 + y);
-		SH1106_SetPixel(color, x0 + x, y0 - y);
-		SH1106_SetPixel(color, x0 - x, y0 - y);
-		SH1106_SetPixel(color, x0 + y, y0 + x);
-		SH1106_SetPixel(color, x0 - y, y0 + x);
-		SH1106_SetPixel(color, x0 + y, y0 - x);
-		SH1106_SetPixel(color, x0 - y, y0 - x);
+		ST7920_SetPixel(color, x0 + x, y0 + y);
+		ST7920_SetPixel(color, x0 - x, y0 + y);
+		ST7920_SetPixel(color, x0 + x, y0 - y);
+		ST7920_SetPixel(color, x0 - x, y0 - y);
+		ST7920_SetPixel(color, x0 + y, y0 + x);
+		ST7920_SetPixel(color, x0 - y, y0 + x);
+		ST7920_SetPixel(color, x0 + y, y0 - x);
+		ST7920_SetPixel(color, x0 - y, y0 - x);
 
 		y++;
 		err += 1 + 2*y;
@@ -378,13 +414,13 @@ void SH1106_DrawCircle(uint8_t color, uint8_t x0, uint8_t y0, uint8_t radius)
 }
 
 /*******************************************************************
- * @name       :SH1106_DrawFilledCircle
+ * @name       :ST7920_DrawFilledCircle
  * @date       :2024-01-03
  * @function   :Draw filled circle
  * @parameters :color, x0, y0, radius
  * @retvalue   :None
 ********************************************************************/ 
-void SH1106_DrawFilledCircle(uint8_t color, int16_t x0, int16_t y0, int16_t r)
+void ST7920_DrawFilledCircle(uint8_t color, int16_t x0, int16_t y0, int16_t r)
 {
 	int16_t f = 1 - r;
 	int16_t ddF_x = 1;
@@ -392,11 +428,11 @@ void SH1106_DrawFilledCircle(uint8_t color, int16_t x0, int16_t y0, int16_t r)
 	int16_t x = 0;
 	int16_t y = r;
 
-	SH1106_SetPixel(color, x0, y0 + r);
-	SH1106_SetPixel(color, x0, y0 - r);
-	SH1106_SetPixel(color, x0 + r, y0);
-	SH1106_SetPixel(color, x0 - r, y0);
-	SH1106_DrawLine(color, x0 - r, y0, x0 + r, y0);
+	ST7920_SetPixel(color, x0, y0 + r);
+	ST7920_SetPixel(color, x0, y0 - r);
+	ST7920_SetPixel(color, x0 + r, y0);
+	ST7920_SetPixel(color, x0 - r, y0);
+	ST7920_DrawLine(color, x0 - r, y0, x0 + r, y0);
 
 	while (x < y) 
 	{
@@ -410,65 +446,75 @@ void SH1106_DrawFilledCircle(uint8_t color, int16_t x0, int16_t y0, int16_t r)
 		ddF_x += 2;
 		f += ddF_x;
 		
-		SH1106_DrawLine(color, x0 - x, y0 + y, x0 + x, y0 + y);
-		SH1106_DrawLine(color, + x, y0 - y, x0 - x, y0 - y);
+		ST7920_DrawLine(color, x0 - x, y0 + y, x0 + x, y0 + y);
+		ST7920_DrawLine(color, + x, y0 - y, x0 - x, y0 - y);
 		
-		SH1106_DrawLine(color, + y, y0 + x, x0 - y, y0 + x);
-		SH1106_DrawLine(color, + y, y0 - x, x0 - y, y0 - x);
+		ST7920_DrawLine(color, + y, y0 + x, x0 - y, y0 + x);
+		ST7920_DrawLine(color, + y, y0 - x, x0 - y, y0 - x);
 	}
 }
 
 /*******************************************************************
- * @name       :SH1106_ClearBuffer
+ * @name       :ST7920_ClearBuffer
  * @date       :2024-01-03
  * @function   :Clear buffer
  * @parameters :None
  * @retvalue   :None
 ********************************************************************/ 
-void SH1106_ClearBuffer(void)
+void ST7920_ClearBuffer(void)
 {
-	uint16_t bufferSize = (SH1106_WIDTH*SH1106_HEIGHT)/SH1106_DATA_SIZE;
+	uint16_t bufferSize = (ST7920_WIDTH*ST7920_HEIGHT)/ST7920_DATA_SIZE;
 	for (int i=0; i<bufferSize; i++)
-		SH1106_Buffer[i] = 0;
+		ST7920_Buffer[i] = 0;
 }
 
 /*******************************************************************
- * @name       :SH1106_Init
+ * @name       :ST7920_Init
  * @date       :2024-01-03
- * @function   :Init the screen
+ * @function   :Initialization of the component
  * @parameters :None
  * @retvalue   :None
 ********************************************************************/ 
-void SH1106_Init(void)
+void ST7920_Init(void)
 {
+	// Wait 100ms
+	TIM_Wait(100);
 	// Initialize SPI link
-	SH1106_SpiInit();
-	// Wait 200ms
-	TIM_Wait(200);
-	// Reset
-	SH1106_Reset();
-	// Display OFF
-	SH1106_SendCmd(SH1106_CMD_DISP_OFF);
-	// Set multiplex ratio (visible lines)
-	SH1106_SendDoubleCmd(SH1106_CMD_SETMUX, 0x3F); 
-	// Set display offset (offset of first line from the top of display)
-	SH1106_SendDoubleCmd(SH1106_CMD_SETOFFS, 0x00); 
-	// Set display start line (first line displayed)
-	SH1106_SendCmd(SH1106_CMD_STARTLINE); 
-	// Set segment re-map (X coordinate)
-	SH1106_SendCmd(SH1106_CMD_SEG_NORM);
-	// Set COM output scan direction (Y coordinate)
-	SH1106_SendCmd(SH1106_CMD_COM_NORM);
-	// Set COM pins hardware configuration
-	SH1106_SendDoubleCmd(SH1106_CMD_COM_HW, 0x12);
-	// Set contrast control
-	SH1106_SendDoubleCmd(SH1106_CMD_CONTRAST, 0xFF); // Contrast: middle level
-	// Disable entire display ON
-	SH1106_SendCmd(SH1106_CMD_EDOFF);
-	// Disable display inversion
-	SH1106_SendCmd(SH1106_CMD_INV_OFF); 
-	// Set clock divide ratio and oscillator frequency
-	SH1106_SendDoubleCmd(SH1106_CMD_CLOCKDIV, 0x80);
-	// Display ON
-	SH1106_SendCmd(SH1106_CMD_DISP_ON);
+	ST7920_SpiInit();
+	// Reset LOW
+	ST7920_RST_LOW;
+	// Wait 50ms
+	TIM_Wait(50);
+	// Reset HIGH
+	ST7920_RST_HIGH;
+	// Wait 100ms
+	TIM_Wait(100);
+	// 8bit mode
+	ST7920_SendCmd(ST7920_CMD_BASIC);
+	// Wait >100us
+	TIM_WaitMicros(110);
+	// 8bit mode
+	ST7920_SendCmd(ST7920_CMD_BASIC);
+	// Wait >37us
+	TIM_WaitMicros(40);
+	// D=0, C=0, B=0 (Display OFF)
+	ST7920_SendCmd(ST7920_CMD_DISPLAYOFF);
+	// Wait >100us
+	TIM_WaitMicros(110);
+	// Clear screen
+	ST7920_SendCmd(ST7920_CMD_LCD_CLS);
+	// Wait >10ms
+	TIM_Wait(12);
+	// Cursor increment right, no shift
+	ST7920_SendCmd(ST7920_CMD_ADDRINC);
+	// Wait 1ms
+	TIM_Wait(1);
+	// D=1, C=0, B=0 (Display ON)
+	ST7920_SendCmd(ST7920_CMD_DISPLAYON);
+	// Wait 1ms
+	TIM_Wait(1);
+	// Return to home
+	ST7920_SendCmd(ST7920_CMD_HOME);
+	// Wait 1ms
+	TIM_Wait(1);
 }

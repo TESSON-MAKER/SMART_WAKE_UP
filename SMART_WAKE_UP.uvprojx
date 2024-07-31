@@ -10,13 +10,13 @@
       <TargetName>Target</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>6190000::V6.19::ARMCLANG</pCCUsed>
+      <pCCUsed>6220000::V6.22::ARMCLANG</pCCUsed>
       <uAC6>1</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F767ZITx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F7xx_DFP.2.15.2</PackID>
+          <PackID>Keil.STM32F7xx_DFP.2.16.0</PackID>
           <PackURL>https://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20020000,0x60000) IRAM2(0x20000000,0x20000) IROM(0x08000000,0x200000) IROM2(0x00200000,0x200000) CPUTYPE("Cortex-M7") FPU3(DFPU) CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -387,52 +387,52 @@
             <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\gpio.c</FilePath>
+              <FilePath>.\src\gpio.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\main.c</FilePath>
+              <FilePath>.\src\main.c</FilePath>
             </File>
             <File>
               <FileName>servo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\servo.c</FilePath>
+              <FilePath>.\src\servo.c</FilePath>
             </File>
             <File>
               <FileName>tim.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\tim.c</FilePath>
+              <FilePath>.\src\tim.c</FilePath>
             </File>
             <File>
               <FileName>urm37.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\urm37.c</FilePath>
+              <FilePath>.\src\urm37.c</FilePath>
             </File>
             <File>
               <FileName>usart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\usart.c</FilePath>
+              <FilePath>.\src\usart.c</FilePath>
             </File>
             <File>
               <FileName>st7920.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\st7920.c</FilePath>
+              <FilePath>.\src\st7920.c</FilePath>
             </File>
             <File>
               <FileName>ds3231.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\ds3231.c</FilePath>
+              <FilePath>.\src\ds3231.c</FilePath>
             </File>
             <File>
               <FileName>buttons.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\buttons.c</FilePath>
+              <FilePath>.\src\buttons.c</FilePath>
             </File>
             <File>
               <FileName>sh1106.c</FileName>
               <FileType>1</FileType>
-              <FilePath>sh1106.c</FilePath>
+              <FilePath>.\src\sh1106.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -442,47 +442,47 @@
             <File>
               <FileName>gpio.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\gpio.h</FilePath>
+              <FilePath>.\inc\gpio.h</FilePath>
             </File>
             <File>
               <FileName>servo.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\servo.h</FilePath>
+              <FilePath>.\inc\servo.h</FilePath>
             </File>
             <File>
               <FileName>tim.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\tim.h</FilePath>
+              <FilePath>.\inc\tim.h</FilePath>
             </File>
             <File>
               <FileName>urm37.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\urm37.h</FilePath>
+              <FilePath>.\inc\urm37.h</FilePath>
             </File>
             <File>
               <FileName>usart.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\usart.h</FilePath>
+              <FilePath>.\inc\usart.h</FilePath>
             </File>
             <File>
               <FileName>st7920.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\st7920.h</FilePath>
+              <FilePath>.\inc\st7920.h</FilePath>
             </File>
             <File>
               <FileName>ds3231.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\ds3231.h</FilePath>
+              <FilePath>.\inc\ds3231.h</FilePath>
             </File>
             <File>
               <FileName>buttons.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\buttons.h</FilePath>
+              <FilePath>.\inc\buttons.h</FilePath>
             </File>
             <File>
               <FileName>sh1106.h</FileName>
               <FileType>5</FileType>
-              <FilePath>sh1106.h</FilePath>
+              <FilePath>.\inc\sh1106.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -492,17 +492,17 @@
             <File>
               <FileName>fonts.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\fonts.h</FilePath>
+              <FilePath>.\Fonts\fonts.h</FilePath>
             </File>
             <File>
               <FileName>fonts_arial12x12.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\fonts_arial12x12.c</FilePath>
+              <FilePath>.\Fonts\fonts_arial12x12.c</FilePath>
             </File>
             <File>
               <FileName>fonts_arial28x28.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\fonts_arial28x28.c</FilePath>
+              <FilePath>.\Fonts\fonts_arial28x28.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -536,7 +536,7 @@
       <file attr="config" category="source" condition="STM32F767_ARMCC" name="Drivers\CMSIS\Device\ST\STM32F7xx\Source\Templates\arm\startup_stm32f767xx.s" version="1.3.0">
         <instance index="0">RTE\Device\STM32F767ZITx\startup_stm32f767xx.s</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.2.5" condition="STM32F7 CMSIS"/>
-        <package name="STM32F7xx_DFP" schemaVersion="1.7.7" url="https://www.keil.com/pack/" vendor="Keil" version="2.15.2"/>
+        <package name="STM32F7xx_DFP" schemaVersion="1.7.28" url="https://www.keil.com/pack/" vendor="Keil" version="2.16.0"/>
         <targetInfos>
           <targetInfo name="Target"/>
         </targetInfos>
@@ -544,7 +544,7 @@
       <file attr="config" category="source" name="Drivers\CMSIS\Device\ST\STM32F7xx\Source\Templates\system_stm32f7xx.c" version="1.3.0">
         <instance index="0">RTE\Device\STM32F767ZITx\system_stm32f7xx.c</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.2.5" condition="STM32F7 CMSIS"/>
-        <package name="STM32F7xx_DFP" schemaVersion="1.7.7" url="https://www.keil.com/pack/" vendor="Keil" version="2.15.2"/>
+        <package name="STM32F7xx_DFP" schemaVersion="1.7.28" url="https://www.keil.com/pack/" vendor="Keil" version="2.16.0"/>
         <targetInfos>
           <targetInfo name="Target"/>
         </targetInfos>

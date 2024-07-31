@@ -1,4 +1,4 @@
-#include "gpio.h"
+#include "../inc/gpio.h"
 
 void GPIO_PinMode(GPIO_TypeDef *GPIO, uint16_t PIN, uint8_t mode) 
 {

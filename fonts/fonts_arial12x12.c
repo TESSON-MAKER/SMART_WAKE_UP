@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "fonts.h"
+#include "../fonts/fonts.h"
 
 const uint8_t Arial12x12_Data[] =
 {

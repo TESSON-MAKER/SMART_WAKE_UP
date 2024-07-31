@@ -1,9 +1,9 @@
-#include "SH1106.h"
-#include "tim.h"
-#include "buttons.h"
-#include "ds3231.h"
-#include "gpio.h"
-#include "urm37.h"
+#include "../inc/sh1106.h"
+#include "../inc/tim.h"
+#include "../inc/buttons.h"
+#include "../inc/ds3231.h"
+#include "../inc/gpio.h"
+#include "../inc/urm37.h"
 
 const char *days[] = {"NA", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}; 
 const char *months[] = {"NA", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};

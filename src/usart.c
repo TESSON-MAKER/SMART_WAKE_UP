@@ -1,4 +1,4 @@
-#include "usart.h"
+#include "../inc/usart.h"
 
 void USART_Serial_Begin(uint32_t baud_rate) 
 {

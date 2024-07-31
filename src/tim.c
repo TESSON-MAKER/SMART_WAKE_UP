@@ -1,4 +1,4 @@
-#include "tim.h"
+#include "../inc/tim.h"
 
 void TIM_WaitMicros(unsigned int us)
 {

@@ -4,6 +4,7 @@
 #include "../inc/ds3231.h"
 #include "../inc/gpio.h"
 #include "../inc/urm37.h"
+#include "../inc/usart.h"
 
 const char *days[] = {"NA", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}; 
 const char *months[] = {"NA", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
@@ -33,6 +34,7 @@ int main(void)
 {
 	SH1106_Init();
 	SH1106_ClearBuffer();
+	USART_Serial_Begin(9600); 
 	//SH1106_GraphicMode(1);
 	BUTTONS_Init();
 	DS3231_Init();
@@ -47,6 +49,7 @@ int main(void)
 	{
 		SH1106_ClearBuffer();
 		BUTTONS_KeyState();
+		
 		GPIO_DigitalWrite(GPIOB, 7, state);	
 		GPIO_DigitalWrite(GPIOB, 14, !state);	
 		TIM_Wait(50);
@@ -99,6 +102,7 @@ static void MAIN_DisplayDate(void)
 	
 	SH1106_FontPrint(1, 0, 0, &Arial12x12, "Temp: %.1f degrees", temp);
 	SH1106_FontPrint(1, 7, 13, &Arial28x28, "%02d:%02d:%02d", DS3231_Hour, DS3231_Minute, DS3231_Second);
+	USART_Serial_Print("%02d:%02d:%02d\r\n", DS3231_Hour, DS3231_Minute, DS3231_Second);
 	SH1106_FontPrint(1, 0, 39, &Arial12x12, "%s,", days[DS3231_DayWeek]);
 	SH1106_FontPrint(1, 0, 52, &Arial12x12, "%s %d, 2%d%02d", months[DS3231_Month], DS3231_DayMonth, DS3231_Century, DS3231_Year);
 	SH1106_DrawLine(1, 0, 37, 131, 37);

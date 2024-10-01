@@ -60,8 +60,6 @@
 #define XLevelH                 (uint8_t) 0x10
 #define YLevel                  (uint8_t) 0xB0
 
-static uint8_t SH1106_Buffer[(SH1106_WIDTH*SH1106_HEIGHT)/SH1106_DATA_SIZE];
-
 void SH1106_Init(void);
 void SH1106_SendCmd(uint8_t cmd);
 void SH1106_SetPixel(uint8_t pixel, int16_t x, int16_t y);

@@ -1,6 +1,8 @@
 #include "../inc/sh1106.h"
 #include "../inc/tim.h"
 
+static uint8_t SH1106_Buffer[(SH1106_WIDTH*SH1106_HEIGHT)/SH1106_DATA_SIZE];
+
 /*******************************************************************
  * @name       :SH1106_SpiInit
  * @date       :2024-01-03

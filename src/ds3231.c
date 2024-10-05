@@ -35,7 +35,7 @@ void DS3231_Init(void)
  * @date       :2024-01-03
  * @function   :Converts BCD (Binary Coded Decimal) to Decimal
  * @parameters :x (unsigned char) - BCD value to be converted
- * @retvalue   :int - Converted decimal value
+ * @retvalue   :Converted decimal value
 ********************************************************************/
 int DS3231_BCD_DEC(unsigned char x) 
 {
@@ -47,7 +47,7 @@ int DS3231_BCD_DEC(unsigned char x)
  * @date       :2024-01-03
  * @function   :Converts Decimal to BCD (Binary Coded Decimal)
  * @parameters :x (unsigned char) - Decimal value to be converted
- * @retvalue   :int - Converted BCD value
+ * @retvalue   :Converted BCD value
 ********************************************************************/
 int DS3231_DEC_BCD(unsigned char x) 
 {

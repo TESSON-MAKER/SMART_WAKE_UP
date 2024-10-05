@@ -1,7 +1,10 @@
 #ifndef DS3231_H_
 #define DS3231_H_
-#include "stdint.h"
-#include "stm32f7xx.h"
+#include <stdint.h>
+#include <stm32f7xx.h>
+
+#define AF4 0x04
+#define TIMEOUT_MAX 300
 
 extern uint8_t DS3231_HS;
 

@@ -2,10 +2,10 @@
 #define URM37_H
 
 #include <stdint.h>
-#include "stm32f767xx.h"
+#include <stm32f7xx.h>
 
-volatile uint8_t URM37_Temperature[4];
-volatile uint8_t URM37_Distance[4];
+extern volatile uint8_t URM37_Temperature[4];
+extern volatile uint8_t URM37_Distance[4];
 
 void URM37_Init(void);
 float URM37_GetTemperature(void);

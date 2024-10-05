@@ -1,5 +1,4 @@
 #include "../inc/ds3231.h"
-#include "stm32f767xx.h"
 
 void DS3231_Init(void) 
 {
@@ -26,12 +25,12 @@ void DS3231_Init(void)
 
 int DS3231_BCD_DEC(unsigned char x) 
 {
-    return x - 6 * (x >> 4); // Conversion du BCD en decimal
+    return x - 6 * (x >> 4); // Conversion of BCD in decimal
 }
 
 int DS3231_DEC_BCD(unsigned char x) 
 {
-    return x + 6 * (x / 10); // Conversion du decimal en BCD
+    return x + 6 * (x / 10); // Conversion of decimal in BCD
 }
 
 void DS3231_Read(uint8_t slav_add, uint8_t memadd, uint8_t *data, uint8_t length ) 

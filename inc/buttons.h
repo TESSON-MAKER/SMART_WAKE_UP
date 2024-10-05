@@ -1,9 +1,7 @@
-
-
 #ifndef BUTTONS_H
 #define BUTTONS_H
 
-#include "stm32f7xx.h" 
+#include <stm32f7xx.h>
 
 extern volatile uint8_t BUTTON_TopState; 
 extern volatile uint8_t BUTTON_BottomState;

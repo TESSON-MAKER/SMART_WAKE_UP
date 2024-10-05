@@ -1,7 +1,7 @@
 #ifndef GPIO_H
 #define GPIO_H
 
-#include "stm32f7xx.h"
+#include <stm32f7xx.h>
 
 void GPIO_PinMode(GPIO_TypeDef *GPIO, uint16_t PIN, uint8_t mode);
 void GPIO_DigitalWrite(GPIO_TypeDef *PORT, uint16_t PIN, uint8_t state);

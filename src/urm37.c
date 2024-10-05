@@ -5,8 +5,8 @@
 
 static volatile int indexT = 0;
 
-extern volatile uint8_t URM37_Temperature[4] = {0x11, 0x00, 0x00, 0x11};
-extern volatile uint8_t URM37_Distance[4] = {0x22, 0x00, 0x00, 0x22};
+volatile uint8_t URM37_Temperature[4] = {0x11, 0x00, 0x00, 0x11};
+volatile uint8_t URM37_Distance[4] = {0x22, 0x00, 0x00, 0x22};
 
 static uint8_t URM37_TempReceive[4] = {0};
 static uint8_t URM37_DistReceive[4] = {0};

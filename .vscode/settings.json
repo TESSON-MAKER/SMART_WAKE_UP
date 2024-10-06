@@ -1,0 +1,11 @@
+{
+    "cmsis-csolution.actions": [
+        {
+            "path": "SMART_WAKE_UP.csolution.yml",
+            "target": "Target",
+            "config": {
+                "debug": "Arm Debugger"
+            }
+        }
+    ]
+}

@@ -1,5 +1,8 @@
 #include "../inc/usart.h"
 
+#include <stdarg.h>
+#include <stdio.h>
+
 void USART_Serial_Begin(uint32_t baud_rate) 
 {
     // Activation de l'horloge pour USART3

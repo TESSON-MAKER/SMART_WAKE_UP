@@ -1,6 +1,9 @@
 #include "../inc/sh1106.h"
 #include "../inc/tim.h"
 
+#include <stdarg.h>
+#include <stdio.h>
+
 static uint8_t SH1106_Buffer[(SH1106_WIDTH*SH1106_HEIGHT)/SH1106_DATA_SIZE];
 
 /*******************************************************************

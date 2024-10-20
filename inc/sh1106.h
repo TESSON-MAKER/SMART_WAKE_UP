@@ -2,9 +2,6 @@
 #define SH1106_H_
 
 #include <stm32f7xx.h>
-#include <stdarg.h>
-#include <stdio.h>
-
 #include "../fonts/fonts.h"
 
 //Pins activated/desactivated

@@ -1,7 +1,6 @@
 #ifndef URM37_H
 #define URM37_H
 
-#include <stdint.h>
 #include <stm32f7xx.h>
 
 extern volatile uint8_t URM37_Temperature[4];

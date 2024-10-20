@@ -1,11 +1,10 @@
 #ifndef ST7920_H_
 #define ST7920_H_
 
-#include <stdint.h>
+#include <stm32f7xx.h>
 #include <stdarg.h>
 #include <stdio.h>
 
-#include <stm32f7xx.h>
 #include "../fonts/fonts.h"
 
 //Pins activated/desactivated

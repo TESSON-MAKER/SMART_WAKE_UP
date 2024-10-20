@@ -1,5 +1,4 @@
 #include "../inc/servo.h"
-#include "stm32f7xx.h"
 
 static const int period = 19999;
 

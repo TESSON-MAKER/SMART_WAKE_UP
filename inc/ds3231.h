@@ -1,5 +1,6 @@
 #ifndef DS3231_H_
 #define DS3231_H_
+
 #include <stdint.h>
 #include <stm32f7xx.h>
 

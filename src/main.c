@@ -43,7 +43,8 @@ int main(void)
 	GPIO_PinMode(GPIOB, 7, OUTPUT);
 	GPIO_PinMode(GPIOB, 14, OUTPUT);
 	
-	
+	uint8_t dataI[7] = {DS3231_DEC_BCD(0), DS3231_DEC_BCD(55), DS3231_DEC_BCD(21), DS3231_DEC_BCD(6), DS3231_DEC_BCD(3), DS3231_DEC_BCD(3), DS3231_DEC_BCD(2001)};
+	DS3231_WriteMemory(0x68, 0x00, dataI, 7);
 	
 	while (1) 
 	{

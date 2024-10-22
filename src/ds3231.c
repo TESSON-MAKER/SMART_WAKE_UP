@@ -124,7 +124,7 @@ void DS3231_Read(uint8_t memadd, uint8_t *data, uint8_t length)
  * @parameters :memadd, data, length
  * @retvalue   :None
 ********************************************************************/ 
-void DS3231_WriteMemory(uint8_t memadd, uint8_t *data, uint8_t length) 
+void DS3231_Write(uint8_t memadd, uint8_t *data, uint8_t length) 
 {
 	// Enable I2C1 peripheral
 	I2C1->CR1 |= I2C_CR1_PE;

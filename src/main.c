@@ -54,7 +54,7 @@ int main(void)
 		DS3231_DEC_BCD(1)
 	};
 	
-	DS3231_WriteMemory(0x00, dataI, 7);
+	DS3231_Write(0x00, dataI, 7);
 	
 	while (1) 
 	{
@@ -99,7 +99,7 @@ static void MAIN_DisplayDate(void)
 			DS3231_DEC_BCD(DS3231_Year)
 		};
 		
-		DS3231_WriteMemory(0x00, dataS, 7);
+		DS3231_Write(0x00, dataS, 7);
 		
 		BUTTON_TopState = 0;
 		BUTTON_BottomState = 0;

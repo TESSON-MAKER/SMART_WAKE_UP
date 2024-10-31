@@ -2,141 +2,156 @@
 
 /*******************************************************************
  * @name       :DS3231_Init
- * @date       :2024-01-03
- * @function   :Initialize the DS3231 RTC module
+ * @date       :2024-10-22
+ * @function   :DS3231 Initialization
  * @parameters :None
  * @retvalue   :None
 ********************************************************************/
 void DS3231_Init(void)
 {
-    // Enable clock
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; // Enable GPIOB clock
-    RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;  // Enable I2C1 clock
-    
-    // Set GPIOB pin 8 to AF mode
-    GPIOB->MODER |= GPIO_MODER_MODER8_1;
-    GPIOB->MODER &= ~GPIO_MODER_MODER8_0;
+	// Enable GPIOB clock
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
 
-    // Set GPIOB pin 9 to AF mode
-    GPIOB->MODER |= GPIO_MODER_MODER9_1;
-    GPIOB->MODER &= ~GPIO_MODER_MODER9_0;
-    
-    // Configure pins as open-drain outputs
-    GPIOB->OTYPER |= GPIO_OTYPER_OT8;
-    GPIOB->OTYPER |= GPIO_OTYPER_OT9;
+	// Configure GPIOB Pin 8 as alternate function
+	GPIOB->MODER |= GPIO_MODER_MODER8_1; // Set mode to alternate function
+	GPIOB->MODER &= ~GPIO_MODER_MODER8_0; // Clear mode bits
 
-    // Configure the speed of the pins
-    GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR8;
-    GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR9;
-    
-    GPIOB->AFR[1] |= DS3231_I2C_AF4 << GPIO_AFRH_AFRH0_Pos;
-    GPIOB->AFR[1] |= DS3231_I2C_AF4 << GPIO_AFRH_AFRH1_Pos;
+	// Configure GPIOB Pin 9 as alternate function
+	GPIOB->MODER |= GPIO_MODER_MODER9_1; // Set mode to alternate function
+	GPIOB->MODER &= ~GPIO_MODER_MODER9_0; // Clear mode bits
 
-    // Disable I2C before configuration
-    I2C1->CR1 &= ~I2C_CR1_PE;
+	// Set GPIOB Pin 8 and Pin 9 to open-drain mode
+	GPIOB->OTYPER |= GPIO_OTYPER_OT8; // Set Pin 8 to open-drain
+	GPIOB->OTYPER |= GPIO_OTYPER_OT9; // Set Pin 9 to open-drain
 
-    // Set timing for 100kHz I2C communication
-    I2C1->TIMINGR = 0x0000C1C1;
+	// Set alternate function for GPIOB Pin 8 and Pin 9 to I2C1
+	GPIOB->AFR[1] |= DS3231_I2C1_AF << GPIO_AFRH_AFRH0_Pos; // Set alternate function for Pin 8
+	GPIOB->AFR[1] |= DS3231_I2C1_AF << GPIO_AFRH_AFRH1_Pos; // Set alternate function for Pin 9
+
+	// Enable I2C1 clock
+	RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
+
+	// Disable I2C1 before configuring it
+	I2C1->CR1 &= ~I2C_CR1_PE;
+
+	// Set I2C timing register (standard or fast mode)
+	I2C1->TIMINGR = 0x0000C1C1; // Configure timing for I2C
 }
 
 /*******************************************************************
  * @name       :DS3231_BCD_DEC
- * @date       :2024-01-03
+ * @date       :2024-10-22
  * @function   :Convert BCD to decimal
- * @parameters :x - BCD value to convert
- * @retvalue   :Converted decimal value
+ * @parameters :None
+ * @retvalue   :Converted value
 ********************************************************************/
 int DS3231_BCD_DEC(unsigned char x)
 {
-    return x - 6 * (x >> 4); // Conversion from BCD to decimal
+	// Convert BCD to decimal
+	return x - 6 * (x >> 4);
 }
 
 /*******************************************************************
  * @name       :DS3231_DEC_BCD
- * @date       :2024-01-03
+ * @date       :2024-10-22
  * @function   :Convert decimal to BCD
- * @parameters :x - Decimal value to convert
- * @retvalue   :Converted BCD value
+ * @parameters :None
+ * @retvalue   :Converted value
 ********************************************************************/
 int DS3231_DEC_BCD(unsigned char x)
 {
-    return x + 6 * (x / 10); // Conversion from decimal to BCD
+	// Convert decimal to BCD
+	return x + 6 * (x / 10);
 }
 
 /*******************************************************************
  * @name       :DS3231_Read
- * @date       :2024-01-03
+ * @date       :2024-10-22
  * @function   :Read data from DS3231
- * @parameters :memadd - Memory address in DS3231,
- *              data - Pointer to store read data,
- *              length - Number of bytes to read
+ * @parameters :memadd, data, length
  * @retvalue   :None
 ********************************************************************/
 void DS3231_Read(uint8_t memadd, uint8_t *data, uint8_t length)
 {
-    I2C1->CR1 |= I2C_CR1_PE; // Initialize I2C for writing
-    I2C1->CR2 = (DS3231_ADRESS << 1); // Set slave address
-    I2C1->CR2 &= ~I2C_CR2_ADD10; // 7-bit addressing mode
-    I2C1->CR2 |= (1 << I2C_CR2_NBYTES_Pos); // Set to 1 byte for address write
-    I2C1->CR2 &= ~I2C_CR2_RD_WRN; // Write mode
-    I2C1->CR2 &= ~I2C_CR2_AUTOEND; // Disable auto-end
-    I2C1->CR2 |= I2C_CR2_START; // Generate start condition
+	// Enable I2C
+	I2C1->CR1 |= I2C_CR1_PE;
 
-    while (!(I2C1->ISR & I2C_ISR_TC)) // Wait for completion
-    {
-        if (I2C1->ISR & I2C_ISR_TXE) // Check TX buffer
-        {
-            I2C1->TXDR = memadd; // Send memory address
-        }
-    }
+	// Set slave address for read operation
+	I2C1->CR2 = (DS3231_I2C_ADRESS << 1); // Set slave address
+	I2C1->CR2 &= ~I2C_CR2_ADD10; // 7-bit addressing
+	I2C1->CR2 |= (1 << I2C_CR2_NBYTES_Pos); // Set number to transfer to 1 for write operation
+	I2C1->CR2 &= ~I2C_CR2_RD_WRN; // Set the mode to write mode
+	I2C1->CR2 &= ~I2C_CR2_AUTOEND; // Software end
+	I2C1->CR2 |= I2C_CR2_START; // Generate start
 
-    I2C1->CR1 &= ~I2C_CR1_PE; // Restart I2C for reading
-    I2C1->CR1 |= I2C_CR1_PE; // Enable I2C
-    I2C1->CR2 = (DS3231_ADRESS << 1); // Set slave address
-    I2C1->CR2 |= (length << I2C_CR2_NBYTES_Pos); // Set length
-    I2C1->CR2 |= I2C_CR2_RD_WRN; // Set read mode
-    I2C1->CR2 |= I2C_CR2_AUTOEND; // Enable auto-stop
-    I2C1->CR2 |= I2C_CR2_START; // Generate start condition
+	// Wait until transfer is completed
+	while (!(I2C1->ISR & I2C_ISR_TC))
+	{
+		// Check if TX buffer is empty
+		if (I2C1->ISR & I2C_ISR_TXE)
+		{
+			I2C1->TXDR = memadd; // Send memory address
+		}
+	}
 
-    while (!(I2C1->ISR & I2C_ISR_STOPF)) // Wait for stop condition
-    {
-        if (I2C1->ISR & I2C_ISR_RXNE) // If RX buffer has data
-        {
-            *data++ = I2C1->RXDR; // Read data and increment pointer
-        }
-    }
+	// Reset I2C and enable for read operation
+	I2C1->CR1 &= ~I2C_CR1_PE; // Reset I2C
+	I2C1->CR1 |= I2C_CR1_PE; // Enable I2C
+	I2C1->CR2 = (DS3231_I2C_ADRESS << 1); // Set slave address
+	I2C1->CR2 |= I2C_CR2_RD_WRN; // Set mode to read operation
+	I2C1->CR2 |= (length << I2C_CR2_NBYTES_Pos); // Set length to the required length
+	I2C1->CR2 |= I2C_CR2_AUTOEND; // Auto-generate stop after transfer is completed
+	I2C1->CR2 |= I2C_CR2_START; // Generate start
 
-    I2C1->CR1 &= ~I2C_CR1_PE; // Disable I2C
+	// Wait until stop is generated
+	while (!(I2C1->ISR & I2C_ISR_STOPF))
+	{
+		// If RX buffer is not empty
+		if (I2C1->ISR & I2C_ISR_RXNE)
+		{
+			*data++ = I2C1->RXDR; // Read the data and increment the pointer
+		}
+	}
+
+	// Disable the peripheral
+	I2C1->CR1 &= ~I2C_CR1_PE;
 }
 
 /*******************************************************************
- * @name       :DS3231_Write
- * @date       :2024-01-03
- * @function   :Write data to DS3231
- * @parameters :memadd - Memory address in DS3231,
- *              data - Pointer to data to write,
- *              length - Number of bytes to write
+ * @name       :DS3231_WriteMemory
+ * @date       :2024-10-22
+ * @function   :Write data to DS3231 memory
+ * @parameters :memadd, data, length
  * @retvalue   :None
 ********************************************************************/
 void DS3231_Write(uint8_t memadd, uint8_t *data, uint8_t length)
 {
-    I2C1->CR1 |= I2C_CR1_PE; // Enable I2C
-    I2C1->CR2 = (DS3231_ADRESS << 1); // Set slave address
-    I2C1->CR2 &= ~I2C_CR2_ADD10; // 7-bit addressing mode
-    I2C1->CR2 |= ((length + 1) << I2C_CR2_NBYTES_Pos); // Set number of bytes to transfer
-    I2C1->CR2 &= ~I2C_CR2_RD_WRN; // Set write mode
-    I2C1->CR2 |= I2C_CR2_AUTOEND; // Enable auto-stop
-    I2C1->CR2 |= I2C_CR2_START; // Generate start condition
+	// Enable I2C1 peripheral
+	I2C1->CR1 |= I2C_CR1_PE;
 
-    int i = 0; // Initialize index
-    while (!(I2C1->ISR & I2C_ISR_STOPF)) // Wait for stop condition
-    {
-        if (I2C1->ISR & I2C_ISR_TXE) // Check if the TX buffer is empty
-        {
-            I2C1->TXDR = (i == 0) ? memadd : data[i - 1]; // Send memory address or data sequentially
-            i++; // Increment index
-        }
-    }
+	// Configure I2C for writing data
+	I2C1->CR2 = 0;  // Reset control register
+	I2C1->CR2 = (DS3231_I2C_ADRESS << 1);  // Set slave address (shifted left)
+	I2C1->CR2 &= ~I2C_CR2_ADD10;  // 7-bit addressing mode
+	I2C1->CR2 |= ((length + 1) << I2C_CR2_NBYTES_Pos);  // Set number of bytes to write (include memory address)
+	I2C1->CR2 &= ~I2C_CR2_RD_WRN;  // Set to write mode
+	I2C1->CR2 |= I2C_CR2_AUTOEND;  // Enable auto-stop
+	I2C1->CR2 |= I2C_CR2_START;  // Generate start condition
 
-    I2C1->CR1 &= ~I2C_CR1_PE; // Disable I2C
+	// Send memory address and data
+	int i = 0;  // Initialize index for data
+	// Wait for stop condition
+	while (!(I2C1->ISR & I2C_ISR_STOPF))
+	{
+		// If transmit buffer is empty
+		if (I2C1->ISR & I2C_ISR_TXE)
+		{
+			// Send memory address or data
+			I2C1->TXDR = (i == 0) ? memadd : data[i - 1];
+			i++;  // Increment index
+		}
+	}
+
+	// Disable I2C1 after transmission
+	I2C1->CR1 &= ~I2C_CR1_PE;
 }

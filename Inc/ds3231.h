@@ -1,11 +1,11 @@
 #ifndef DS3231_H_
 #define DS3231_H_
 
-#include <stm32f7xx.h>
 #include <stdint.h>
+#include <stm32f7xx.h>
 
-#define DS3231_I2C_AF4 0x04
-#define DS3231_ADRESS 0x68
+#define DS3231_I2C1_AF 0x04
+#define DS3231_I2C_ADRESS 0x68
 
 void DS3231_Init(void);
 int DS3231_BCD_DEC(unsigned char x);

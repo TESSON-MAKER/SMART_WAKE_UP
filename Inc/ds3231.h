@@ -4,7 +4,7 @@
 #include <stm32f7xx.h>
 #include <stdint.h>
 
-#define AF4 0x04
+#define DS3231_I2C_AF4 0x04
 #define DS3231_ADRESS 0x68
 
 void DS3231_Init(void);

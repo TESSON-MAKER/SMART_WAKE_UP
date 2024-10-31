@@ -9,7 +9,7 @@
 ********************************************************************/
 void DS3231_Init(void)
 {
-	// Enable clock
+    // Enable clock
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; // Enable GPIOB clock
     RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;  // Enable I2C1 clock
     
@@ -29,8 +29,8 @@ void DS3231_Init(void)
     GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR8;
     GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR9;
     
-    GPIOB->AFR[1] |= AF4 << GPIO_AFRH_AFRH0_Pos;
-    GPIOB->AFR[1] |= AF4 << GPIO_AFRH_AFRH1_Pos;
+    GPIOB->AFR[1] |= DS3231_I2C_AF4 << GPIO_AFRH_AFRH0_Pos;
+    GPIOB->AFR[1] |= DS3231_I2C_AF4 << GPIO_AFRH_AFRH1_Pos;
 
     // Disable I2C before configuration
     I2C1->CR1 &= ~I2C_CR1_PE;
@@ -133,8 +133,8 @@ void DS3231_Write(uint8_t memadd, uint8_t *data, uint8_t length)
     {
         if (I2C1->ISR & I2C_ISR_TXE) // Check if the TX buffer is empty
         {
-			I2C1->TXDR = (i == 0) ? memadd : data[i - 1]; // Send memory address or data sequentially
-			i++; // Increment index
+            I2C1->TXDR = (i == 0) ? memadd : data[i - 1]; // Send memory address or data sequentially
+            i++; // Increment index
         }
     }
 

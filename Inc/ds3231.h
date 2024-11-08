@@ -10,7 +10,7 @@
 void DS3231_Init(void);
 int DS3231_BCD_DEC(unsigned char x);
 int DS3231_DEC_BCD(unsigned char x);
-void DS3231_Read(uint8_t memadd, uint8_t *data, uint8_t length );
-void DS3231_Write(uint8_t memadd, uint8_t *data, uint8_t length);
+void DS3231_Read(uint8_t memadd, uint8_t *data, uint8_t length, uint16_t timeout);
+void DS3231_Write(uint8_t memadd, uint8_t *data, uint8_t length, uint16_t timeout);
 
 #endif /* DS3231_H_ */

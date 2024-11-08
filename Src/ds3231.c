@@ -25,8 +25,8 @@ void DS3231_Init(void)
 	GPIOB->OTYPER |= GPIO_OTYPER_OT9; // Set Pin 9 to open-drain
 
 	// Set alternate function for GPIOB Pin 8 and Pin 9 to I2C1
-	GPIOB->AFR[1] |= DS3231_I2C1_AF << GPIO_AFRH_AFRH0_Pos; // Set alternate function for Pin 8
-	GPIOB->AFR[1] |= DS3231_I2C1_AF << GPIO_AFRH_AFRH1_Pos; // Set alternate function for Pin 9
+	GPIOB->AFR[1] |= DS3231_I2C1_AF << GPIO_AFRH_AFRH0_Pos;
+	GPIOB->AFR[1] |= DS3231_I2C1_AF << GPIO_AFRH_AFRH1_Pos;
 
 	// Enable I2C1 clock
 	RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
@@ -68,30 +68,36 @@ int DS3231_DEC_BCD(unsigned char x)
  * @name       :DS3231_Read
  * @date       :2024-10-22
  * @function   :Read data from DS3231
- * @parameters :memadd, data, length
+ * @parameters :memadd, data, length, timeout
  * @retvalue   :None
 ********************************************************************/
-void DS3231_Read(uint8_t memadd, uint8_t *data, uint8_t length)
+void DS3231_Read(uint8_t memadd, uint8_t *data, uint8_t length, uint16_t timeout)
 {
 	// Enable I2C
 	I2C1->CR1 |= I2C_CR1_PE;
 
-	// Set slave address for read operation
-	I2C1->CR2 = (DS3231_I2C_ADRESS << 1); // Set slave address
+	// Set slave address for write operation
+	I2C1->CR2 = DS3231_I2C_ADRESS << 1; // Set slave address
 	I2C1->CR2 &= ~I2C_CR2_ADD10; // 7-bit addressing
 	I2C1->CR2 |= (1 << I2C_CR2_NBYTES_Pos); // Set number to transfer to 1 for write operation
 	I2C1->CR2 &= ~I2C_CR2_RD_WRN; // Set the mode to write mode
 	I2C1->CR2 &= ~I2C_CR2_AUTOEND; // Software end
 	I2C1->CR2 |= I2C_CR2_START; // Generate start
 
-	// Wait until transfer is completed
-	while (!(I2C1->ISR & I2C_ISR_TC))
+	// Wait for transfer completion or timeout
+	uint32_t local_timeout = timeout;
+	while (!(I2C1->ISR & I2C_ISR_TC) && --local_timeout)
 	{
-		// Check if TX buffer is empty
+		// If TX buffer is empty, send the memory address
 		if (I2C1->ISR & I2C_ISR_TXE)
 		{
-			I2C1->TXDR = memadd; // Send memory address
+			I2C1->TXDR = memadd;
 		}
+	}
+	if (local_timeout == 0) // Exit if timeout occurs
+	{
+		I2C1->CR1 &= ~I2C_CR1_PE; // Disable I2C
+		return;
 	}
 
 	// Reset I2C and enable for read operation
@@ -103,8 +109,9 @@ void DS3231_Read(uint8_t memadd, uint8_t *data, uint8_t length)
 	I2C1->CR2 |= I2C_CR2_AUTOEND; // Auto-generate stop after transfer is completed
 	I2C1->CR2 |= I2C_CR2_START; // Generate start
 
-	// Wait until stop is generated
-	while (!(I2C1->ISR & I2C_ISR_STOPF))
+	// Wait for stop condition or timeout
+	local_timeout = timeout;
+	while (!(I2C1->ISR & I2C_ISR_STOPF) && --local_timeout)
 	{
 		// If RX buffer is not empty
 		if (I2C1->ISR & I2C_ISR_RXNE)
@@ -112,19 +119,24 @@ void DS3231_Read(uint8_t memadd, uint8_t *data, uint8_t length)
 			*data++ = I2C1->RXDR; // Read the data and increment the pointer
 		}
 	}
+	if (local_timeout == 0) // Exit if timeout occurs
+	{
+		I2C1->CR1 &= ~I2C_CR1_PE; // Disable I2C
+		return;
+	}
 
 	// Disable the peripheral
 	I2C1->CR1 &= ~I2C_CR1_PE;
 }
 
 /*******************************************************************
- * @name       :DS3231_WriteMemory
+ * @name       :DS3231_Write
  * @date       :2024-10-22
- * @function   :Write data to DS3231 memory
- * @parameters :memadd, data, length
+ * @function   :Write data to DS3231 memory with timeout
+ * @parameters :memadd, data, length, timeout
  * @retvalue   :None
 ********************************************************************/
-void DS3231_Write(uint8_t memadd, uint8_t *data, uint8_t length)
+void DS3231_Write(uint8_t memadd, uint8_t *data, uint8_t length, uint16_t timeout)
 {
 	// Enable I2C1 peripheral
 	I2C1->CR1 |= I2C_CR1_PE;
@@ -140,18 +152,27 @@ void DS3231_Write(uint8_t memadd, uint8_t *data, uint8_t length)
 
 	// Send memory address and data
 	int i = 0;  // Initialize index for data
-	// Wait for stop condition
-	while (!(I2C1->ISR & I2C_ISR_STOPF))
+	uint32_t local_timeout = timeout;
+
+	// Wait for stop condition or timeout
+	while (!(I2C1->ISR & I2C_ISR_STOPF) && --local_timeout)
 	{
-		// If transmit buffer is empty
+		// If transmit buffer is empty, send memory address or data
 		if (I2C1->ISR & I2C_ISR_TXE)
 		{
-			// Send memory address or data
-			I2C1->TXDR = (i == 0) ? memadd : data[i - 1];
+			I2C1->TXDR = (i == 0) ? memadd : data[i - 1]; // Send memory address first, then data
 			i++;  // Increment index
 		}
+	}
+
+	// Check if timeout has occurred
+	if (local_timeout == 0)
+	{
+		I2C1->CR1 &= ~I2C_CR1_PE; // Disable I2C if timeout occurs
+		return;
 	}
 
 	// Disable I2C1 after transmission
 	I2C1->CR1 &= ~I2C_CR1_PE;
 }
+

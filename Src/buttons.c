@@ -2,7 +2,7 @@
 
 // Delay values for button press detection
 #define TIM2_PRESCALER_VALUE 16000
-#define TIM2_PUSH_DELAY_VALUE 1000
+#define TIM2_PUSH_DELAY_VALUE 500
 #define TIM2_INCREMENT_DELAY_VALUE 200
 
 #define RESET_TIM2_COUNTER TIM2->CNT = 0

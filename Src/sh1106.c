@@ -69,23 +69,34 @@ static void SH1106_SpiInit(void)
  * @parameters :data
  * @retvalue   :None
 ********************************************************************/
-static void SH1106_SpiTransmit(uint8_t msg)
+static void SH1106_SpiTransmit(uint8_t msg, uint16_t timeout)
 {
-	//Wait until TXE is set
-	while(!(SPI1->SR & (SPI_SR_TXE)));
+    uint32_t local_timeout = timeout;
 
-	//Write the data to the data register
-	*(volatile uint8_t*) & SPI1->DR = msg;
-			
-	//Wait until TXE is set
-	while(!(SPI1->SR & (SPI_SR_TXE)));
+    // Wait until TXE is set or timeout occurs
+    while (!(SPI1->SR & SPI_SR_TXE) && --local_timeout);
+    if (local_timeout == 0) return;  // Exit if timeout occurs
 
-	//Wait for BUSY flag to reset
-	while((SPI1->SR & (SPI_SR_BSY)));
+    // Write the data to the data register
+    *(volatile uint8_t*)&SPI1->DR = msg;
 
-	//Clear OVR flag
-	(void)SPI1->DR;
-	(void)SPI1->SR;
+    // Reset the timeout counter
+    local_timeout = timeout;
+
+    // Wait until TXE is set or timeout occurs
+    while (!(SPI1->SR & SPI_SR_TXE) && --local_timeout);
+    if (local_timeout == 0) return;  // Exit if timeout occurs
+
+    // Reset the timeout counter
+    local_timeout = timeout;
+
+    // Wait for BUSY flag to reset or timeout occurs
+    while ((SPI1->SR & SPI_SR_BSY) && --local_timeout);
+    if (local_timeout == 0) return;  // Exit if timeout occurs
+
+    // Clear OVR flag (Overrun flag) by reading DR and SR registers
+    (void)SPI1->DR;
+    (void)SPI1->SR;
 }
 
 /*******************************************************************
@@ -99,7 +110,7 @@ void SH1106_SendCmd(uint8_t cmd)
 {
 	SH1106_DC_LOW; //Command mode
 	SH1106_CS_LOW;
-	SH1106_SpiTransmit(cmd);
+	SH1106_SpiTransmit(cmd, SH1106_TIMEOUT);
 	SH1106_CS_HIGH;
 }
 
@@ -127,7 +138,7 @@ static void SH1106_SendData(uint8_t data)
 {
 	SH1106_DC_HIGH; //Data mode
 	SH1106_CS_LOW;
-	SH1106_SpiTransmit(data);
+	SH1106_SpiTransmit(data, SH1106_TIMEOUT);
 	SH1106_CS_HIGH;
 }
 

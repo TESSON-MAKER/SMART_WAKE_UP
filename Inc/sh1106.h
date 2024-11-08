@@ -21,6 +21,9 @@
 // SPI1_AF in alternate fonction
 #define SH1106_SPI1_AF 0x05 
 
+// Timeout
+#define SH1106_TIMEOUT 1000
+
 // Screen dimensions
 #define SH1106_WIDTH     (uint16_t) 132
 #define SH1106_HEIGHT    (uint8_t) 64

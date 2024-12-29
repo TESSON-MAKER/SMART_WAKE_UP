@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "esp01.h"
 #include "tim.h"
 
@@ -10,39 +11,14 @@
  * @parameters :None
  * @retvalue   :None
 ********************************************************************/
-void ESP01_Usart_Init(void)
-{
-    // Enable clock for GPIOE (port used by UART7)
+void ESP01_Usart_Init(void) {
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
-
-    // Enable clock for UART7
     RCC->APB1ENR |= RCC_APB1ENR_UART7EN;
-
-    // Configure PE8 in alternate function mode (UART7 TX)
-    GPIOE->MODER &= ~GPIO_MODER_MODER8;
-    GPIOE->MODER |= GPIO_MODER_MODER8_1;
-
-    // Configure PE7 in alternate function mode (UART7 RX)
-    GPIOE->MODER &= ~GPIO_MODER_MODER7;
-    GPIOE->MODER |= GPIO_MODER_MODER7_1;
-
-    // Assign alternate function AF7 to PE8 (UART7 TX)
-    GPIOE->AFR[1] &= ~(UART7_AF8 << GPIO_AFRH_AFRH0_Pos);
-    GPIOE->AFR[1] |= (UART7_AF8 << GPIO_AFRH_AFRH0_Pos);
-
-    // Assign alternate function AF7 to PE7 (UART7 RX)
-    GPIOE->AFR[0] &= ~(UART7_AF8 << GPIO_AFRL_AFRL7_Pos);
-    GPIOE->AFR[0] |= (UART7_AF8 << GPIO_AFRL_AFRL7_Pos);
-
-    // Set the baud rate
+    GPIOE->MODER = (GPIOE->MODER & ~(GPIO_MODER_MODER8 | GPIO_MODER_MODER7)) | (GPIO_MODER_MODER8_1 | GPIO_MODER_MODER7_1);
+    GPIOE->AFR[1] = (GPIOE->AFR[1] & ~GPIO_AFRH_AFRH0_Msk) | (UART7_AF8 << GPIO_AFRH_AFRH0_Pos);
+    GPIOE->AFR[0] = (GPIOE->AFR[0] & ~GPIO_AFRL_AFRL7_Msk) | (UART7_AF8 << GPIO_AFRL_AFRL7_Pos);
     UART7->BRR = SystemCoreClock / ESP01_BAUDRATE;
-
-    // Enable transmitter (TE) and receiver (RE)
-    UART7->CR1 |= USART_CR1_TE;
-    UART7->CR1 |= USART_CR1_RE;
-
-    // Enable UART7 peripheral
-    UART7->CR1 |= USART_CR1_UE;
+    UART7->CR1 |= USART_CR1_TE | USART_CR1_RE | USART_CR1_UE;
 }
 
 /*******************************************************************
@@ -51,14 +27,28 @@ void ESP01_Usart_Init(void)
  * @parameters :const char *command - command to send
  * @retvalue   :None
 ********************************************************************/
-void ESP01_Send(const char *command)
-{
-    while (*command)
-    {
-        while (!(UART7->ISR & USART_ISR_TXE)); // Wait until the buffer is ready
-        UART7->TDR = *command++;              // Send the character
+void ESP01_Send(const char *cmd) {
+    while (*cmd) {
+        while (!(UART7->ISR & USART_ISR_TXE));
+        UART7->TDR = *cmd++;
     }
-    while (!(UART7->ISR & USART_ISR_TC));     // Wait for the transmission to complete
+    while (!(UART7->ISR & USART_ISR_TC));
+}
+
+/*******************************************************************
+ * @name       :ESP01_SendFormatted
+ * @function   :Format and send an AT command to the ESP01 module
+ * @parameters :const char *format - format string for the command
+ *              ... - arguments for the format string
+ * @retvalue   :None
+********************************************************************/
+void ESP01_SendFormatted(const char *format, ...) {
+    char buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+    ESP01_Send(buffer);
 }
 
 /*******************************************************************
@@ -69,35 +59,17 @@ void ESP01_Send(const char *command)
  *              int timeoutMs - timeout in milliseconds
  * @retvalue   :1 if successful, 0 if timeout occurred
 ********************************************************************/
-int ESP01_Receive(char *buffer, int bufferSize, int timeoutMs)
-{
-    int i = 0;
-    int elapsedTime = 0;
-
-    while (i < bufferSize - 1)
-    {
-        // Wait for a character or timeout
-        while (!(UART7->ISR & USART_ISR_RXNE))
-        {
-            if (elapsedTime >= timeoutMs)
-            {
-                buffer[i] = '\0'; // Null-terminate the string
-                return 0;         // Timeout occurred
-            }
-            elapsedTime++;
-            TIM_Wait(1); // Wait for 1 ms
+int ESP01_Receive(char *buf, int size, int timeout) {
+    int i = 0, elapsed = 0;
+    while (i < size - 1) {
+        while (!(UART7->ISR & USART_ISR_RXNE)) {
+            if (elapsed++ >= timeout) return (buf[i] = '\0'), 0;
+            TIM_Wait(1);
         }
-
-        // Read and append the received character
-        char c = UART7->RDR;
-        buffer[i++] = c;
-
-        // Stop if end of line is reached
-        if (c == '\n') break;
+        if ((buf[i++] = UART7->RDR) == '\n') break;
     }
-
-    buffer[i] = '\0'; // Null-terminate the string
-    return 1;         // Data successfully received
+    buf[i] = '\0';
+    return 1;
 }
 
 /*******************************************************************
@@ -108,19 +80,13 @@ int ESP01_Receive(char *buffer, int bufferSize, int timeoutMs)
  *              int timeoutMs - timeout in milliseconds
  * @retvalue   :1 if the expected response is found, 0 otherwise
 ********************************************************************/
-int ESP01_SendAndCheck(const char *command, const char *expected, int timeoutMs)
-{
-    for (int retries = 0; retries < MAX_RETRIES; retries++)
-    {
-        ESP01_Send(command); // Send the command
-        char response[MAX_RESPONSE_SIZE];
-
-        if (ESP01_Receive(response, sizeof(response), timeoutMs) && strstr(response, expected))
-        {
-            return 1; // Expected response received
-        }
+int ESP01_SendAndCheck(const char *cmd, const char *expected, int timeout) {
+    for (int i = 0; i < MAX_RETRIES; i++) {
+        ESP01_Send(cmd);
+        char resp[MAX_RESPONSE_SIZE];
+        if (ESP01_Receive(resp, sizeof(resp), timeout) && strstr(resp, expected)) return 1;
     }
-    return 0; // Max retries reached or no valid response
+    return 0;
 }
 
 /*******************************************************************
@@ -130,15 +96,9 @@ int ESP01_SendAndCheck(const char *command, const char *expected, int timeoutMs)
  *              const char *password - Wi-Fi password
  * @retvalue   :1 if successful, 0 if failed
 ********************************************************************/
-int ESP01_InitWiFi(const char *ssid, const char *password)
-{
-    if (!ESP01_SendAndCheck("AT+CWMODE=1\r\n", "OK", 2000))
-        return 0;
-
-    char command[MAX_RESPONSE_SIZE];
-    snprintf(command, sizeof(command), "AT+CWJAP=\"%s\",\"%s\"\r\n", ssid, password);
-
-    return ESP01_SendAndCheck(command, "OK", 5000);
+int ESP01_InitWiFi(const char *ssid, const char *pwd) {
+    return ESP01_SendAndCheck("AT+CWMODE=1\r\n", "OK", 2000) &&
+           (ESP01_SendFormatted("AT+CWJAP=\"%s\",\"%s\"\r\n", ssid, pwd), ESP01_SendAndCheck("", "OK", 5000));
 }
 
 /*******************************************************************
@@ -149,12 +109,9 @@ int ESP01_InitWiFi(const char *ssid, const char *password)
  *              int timeoutMs - timeout in milliseconds
  * @retvalue   :1 if successful, 0 otherwise
 ********************************************************************/
-int ESP01_GetTime(char *timeBuffer, int bufferSize, int timeoutMs)
-{
+int ESP01_GetTime(char *buf, int size, int timeout) {
     ESP01_Send("AT+CIPSNTPCFG=1,1,\"pool.ntp.org\"\r\n");
-
-    return ESP01_SendAndCheck("AT+CIPSNTPTIME?\r\n", "+CIPSNTPTIME:", timeoutMs) &&
-           ESP01_Receive(timeBuffer, bufferSize, timeoutMs);
+    return ESP01_SendAndCheck("AT+CIPSNTPTIME?\r\n", "+CIPSNTPTIME:", timeout) && ESP01_Receive(buf, size, timeout);
 }
 
 /*******************************************************************
@@ -165,25 +122,12 @@ int ESP01_GetTime(char *timeBuffer, int bufferSize, int timeoutMs)
  *              bufferSize - Size of the buffer
  * @retvalue   :None
 ********************************************************************/
-void ESP01_GetWeather(const char *city, char *responseBuffer, int bufferSize)
-{
+void ESP01_GetWeather(const char *city, char *buf, int size) {
     ESP01_Send("AT+CIPSTART=\"TCP\",\"" OPENWEATHER_HOST "\",80\r\n");
-    if (!ESP01_SendAndCheck("", "OK", 5000))
-    {
-        return;
-    }
-
-    char request[256];
-    snprintf(request, sizeof(request),
-             "GET /data/2.5/weather?q=%s&appid=%s&units=metric HTTP/1.1\r\n"
-             "Host: %s\r\n"
-             "Connection: close\r\n\r\n",
-             city, API_KEY, OPENWEATHER_HOST);
-
-    char command[512];
-    snprintf(command, sizeof(command), "AT+CIPSEND=%d\r\n", strlen(request));
-    ESP01_Send(command);
-    ESP01_Receive(responseBuffer, bufferSize, 5000);
+    if (!ESP01_SendAndCheck("", "OK", 5000)) return;
+    ESP01_SendFormatted("AT+CIPSEND=%d\r\n", snprintf(NULL, 0, "GET /data/2.5/weather?q=%s&appid=%s&units=metric HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", city, API_KEY, OPENWEATHER_HOST));
+    ESP01_SendFormatted("GET /data/2.5/weather?q=%s&appid=%s&units=metric HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", city, API_KEY, OPENWEATHER_HOST);
+    ESP01_Receive(buf, size, 5000);
     ESP01_Send("AT+CIPCLOSE\r\n");
 }
 
@@ -193,14 +137,9 @@ void ESP01_GetWeather(const char *city, char *responseBuffer, int bufferSize)
  * @parameters :response - HTTP response containing JSON data
  * @retvalue   :Temperature as a float, or -999.0 on error
 ********************************************************************/
-float ESP01_ParseTemperature(const char *response)
-{
-    const char *tempPtr = strstr(response, "\"temp\":");
-    if (tempPtr != NULL)
-    {
-        return atof(tempPtr + 7);
-    }
-    return -999.0;
+float ESP01_ParseTemperature(const char *resp) {
+    const char *ptr = strstr(resp, "\"temp\":");
+    return ptr ? atof(ptr + 7) : -999.0;
 }
 
 /*******************************************************************
@@ -209,14 +148,8 @@ float ESP01_ParseTemperature(const char *response)
  * @parameters :city - Name of the city
  * @retvalue   :Temperature as a float, or -999.0 on error
 ********************************************************************/
-float ESP01_GetTemperature(const char *city)
-{
-    char response[512];
-    memset(response, 0, sizeof(response));
-    ESP01_GetWeather(city, response, sizeof(response));
-    return ESP01_ParseTemperature(response);
+float ESP01_GetTemperature(const char *city) {
+    char resp[512] = {0};
+    ESP01_GetWeather(city, resp, sizeof(resp));
+    return ESP01_ParseTemperature(resp);
 }
-
-
-
-

@@ -39,30 +39,6 @@ int main(void)
 	DS3231_Init();
 	URM37_Init();
 	ESP01_Usart_Init();
-	
-	const char *wifiSSID = "iPhone Paul TESSON";
-	const char *wifiPassword = "paul.tesson";
-
-	if (ESP01_InitWiFi(wifiSSID, wifiPassword))
-	{
-		char timeBuffer[128];
-		if (ESP01_GetTime(timeBuffer, sizeof(timeBuffer), 5000))
-		{
-			USART_Serial_Print("Current Time: %s\n", timeBuffer); // Display the received time
-		}
-		else
-		{
-			USART_Serial_Print("Failed to retrieve NTP time.\n");
-		}
-	}
-	else
-	{
-		USART_Serial_Print("Failed to connect to Wi-Fi.\n");
-	}
-
-
-
-
 
 	GPIO_PinMode(GPIOB, 7, OUTPUT);
 	GPIO_PinMode(GPIOB, 14, OUTPUT);
@@ -81,7 +57,6 @@ int main(void)
 	{
 		SH1106_ClearBuffer();
 		BUTTONS_KeyState();
-		ESP01_Send("test\r\n");
 		GPIO_DigitalWrite(GPIOB, 7, state);	
 		GPIO_DigitalWrite(GPIOB, 14, !state);	
 		TIM_Wait(50);

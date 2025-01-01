@@ -9,7 +9,7 @@ static uint8_t SH1106_Buffer[(SH1106_WIDTH*SH1106_HEIGHT)/SH1106_DATA_SIZE];
  * @function   :SPI Initialization
  * @parameters :None
  * @retvalue   :None
-********************************************************************/ 
+ *******************************************************************/
 static void SH1106_SpiInit(void)
 {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; // enable clock for GPIOA
@@ -68,7 +68,7 @@ static void SH1106_SpiInit(void)
  * @function   :Send with spi
  * @parameters :data
  * @retvalue   :None
-********************************************************************/
+ *******************************************************************/
 static void SH1106_SpiTransmit(uint8_t msg, uint16_t timeout)
 {
     uint32_t local_timeout = timeout;
@@ -105,7 +105,7 @@ static void SH1106_SpiTransmit(uint8_t msg, uint16_t timeout)
  * @function   :Send command
  * @parameters :cmd
  * @retvalue   :None
-********************************************************************/ 
+ *******************************************************************/
 void SH1106_SendCmd(uint8_t cmd)
 {
 	SH1106_DC_LOW; //Command mode
@@ -120,7 +120,7 @@ void SH1106_SendCmd(uint8_t cmd)
  * @function   :Send double command
  * @parameters :cmd1, cmd2
  * @retvalue   :None
-********************************************************************/ 
+ *******************************************************************/
 static void SH1106_SendDoubleCmd(uint8_t cmd1, uint8_t cmd2)
 {
 	SH1106_SendCmd(cmd1);
@@ -133,7 +133,7 @@ static void SH1106_SendDoubleCmd(uint8_t cmd1, uint8_t cmd2)
  * @function   :Send data
  * @parameters :data
  * @retvalue   :None
-********************************************************************/ 
+ *******************************************************************/
 static void SH1106_SendData(uint8_t data)
 {
 	SH1106_DC_HIGH; //Data mode
@@ -148,7 +148,7 @@ static void SH1106_SendData(uint8_t data)
  * @function   :Send buffer
  * @parameters :None
  * @retvalue   :None
-********************************************************************/ 
+ *******************************************************************/
 void SH1106_SendBuffer(void)
 {
 	for(int i=0; i<SH1106_DATA_SIZE; i++)  
@@ -169,7 +169,7 @@ void SH1106_SendBuffer(void)
  * @function   :Reset OLED screen
  * @parameters :None
  * @retvalue   :None
-********************************************************************/ 
+ *******************************************************************/
 static void SH1106_Reset(void)
 {
 	SH1106_RST_HIGH;
@@ -185,7 +185,7 @@ static void SH1106_Reset(void)
  * @function   :Set pixel in buffer
  * @parameters :color, x, y
  * @retvalue   :None
-********************************************************************/ 
+ *******************************************************************/
 void SH1106_SetPixel(uint8_t color, int16_t x, int16_t y) 
 {
 	if (x >= SH1106_WIDTH || y >= SH1106_HEIGHT || x < 0 || y < 0) return;
@@ -203,7 +203,7 @@ void SH1106_SetPixel(uint8_t color, int16_t x, int16_t y)
  * @function   : Draw a character at specified position
  * @parameters : color, x, y, font, letterNumberAscii
  * @retvalue   : None
-********************************************************************/
+ *******************************************************************/
 void SH1106_DrawCharacter(uint8_t color, int16_t x, int16_t y, const Font *font, uint8_t letterNumberAscii) 
 {
 	if (letterNumberAscii < font->asciiBegin || letterNumberAscii > font->asciiEnd) return;
@@ -235,7 +235,7 @@ void SH1106_DrawCharacter(uint8_t color, int16_t x, int16_t y, const Font *font,
  * @function   : Set pixel in buffer
  * @parameters : color, x, y, font, content
  * @retvalue   : None
-********************************************************************/ 
+ *******************************************************************/
 void SH1106_DrawStr(uint8_t color, int16_t x, int16_t y, const Font *font, const char *format)
 {
 	while (*format && x < SH1106_WIDTH && y < SH1106_HEIGHT) 
@@ -261,7 +261,7 @@ void SH1106_DrawStr(uint8_t color, int16_t x, int16_t y, const Font *font, const
  * @function   : Set pixel in buffer
  * @parameters : color, x, y, font, content
  * @retvalue   : None
-********************************************************************/ 
+ *******************************************************************/
 void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, const Font *font, const char *format, ...) 
 {
 	va_list args;
@@ -279,7 +279,7 @@ void SH1106_FontPrint(uint8_t color, int16_t x, int16_t y, const Font *font, con
  * @function   :Draw a line
  * @parameters :color, x0, y0, x1, y1
  * @retvalue   :None
-********************************************************************/ 
+ *******************************************************************/
 void SH1106_DrawLine(uint8_t color, uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) 
 {
 	int dx = (x1 >= x0) ? x1 - x0 : x0 - x1;
@@ -312,7 +312,7 @@ void SH1106_DrawLine(uint8_t color, uint8_t x0, uint8_t y0, uint8_t x1, uint8_t 
  * @function   :Draw rectangle
  * @parameters :color, x, y, w, h
  * @retvalue   :None
-********************************************************************/ 
+ *******************************************************************/
 void SH1106_DrawRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	//Check input parameters
@@ -335,7 +335,7 @@ void SH1106_DrawRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uin
  * @function   :Draw rectangle
  * @parameters :color, x, y, w, h
  * @retvalue   :None
-********************************************************************/
+ *******************************************************************/
 void SH1106_DrawFilledRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	//Check input parameters
@@ -356,7 +356,7 @@ void SH1106_DrawFilledRectangle(uint8_t color, uint16_t x, uint16_t y, uint16_t 
  * @function   :Draw circle
  * @parameters :color, x0, y0, radius
  * @retvalue   :None
-********************************************************************/ 
+ *******************************************************************/
 void SH1106_DrawCircle(uint8_t color, uint8_t x0, uint8_t y0, uint8_t radius)
 {
 	int x = radius;
@@ -396,7 +396,7 @@ void SH1106_DrawCircle(uint8_t color, uint8_t x0, uint8_t y0, uint8_t radius)
  * @function   :Draw filled circle
  * @parameters :color, x0, y0, radius
  * @retvalue   :None
-********************************************************************/ 
+ *******************************************************************/
 void SH1106_DrawFilledCircle(uint8_t color, int16_t x0, int16_t y0, int16_t r)
 {
 	int16_t f = 1 - r;
@@ -437,7 +437,7 @@ void SH1106_DrawFilledCircle(uint8_t color, int16_t x0, int16_t y0, int16_t r)
  * @function   :Clear buffer
  * @parameters :None
  * @retvalue   :None
-********************************************************************/ 
+ *******************************************************************/
 void SH1106_ClearBuffer(void)
 {
 	uint16_t bufferSize = (SH1106_WIDTH*SH1106_HEIGHT)/SH1106_DATA_SIZE;
@@ -451,7 +451,7 @@ void SH1106_ClearBuffer(void)
  * @function   :Init the screen
  * @parameters :None
  * @retvalue   :None
-********************************************************************/ 
+ *******************************************************************/
 void SH1106_Init(void)
 {
 	// Initialize SPI link

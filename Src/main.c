@@ -38,7 +38,7 @@ int main(void)
 	BUTTONS_Init();
 	DS3231_Init();
 	URM37_Init();
-	ESP01_Usart_Init();
+	ESP01_UsartInit();
 
 	GPIO_PinMode(GPIOB, 7, OUTPUT);
 	GPIO_PinMode(GPIOB, 14, OUTPUT);

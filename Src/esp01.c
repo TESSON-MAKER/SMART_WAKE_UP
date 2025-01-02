@@ -10,7 +10,7 @@
  * @parameters :None
  * @retvalue   :None
 ********************************************************************/
-void ESP01_Usart_Init(void)
+void ESP01_UsartInit(void)
 {
     // Enable clock for GPIOE (port used by UART7)
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
